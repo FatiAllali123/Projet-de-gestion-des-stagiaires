@@ -1,0 +1,138 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f7f9fc;
+  margin: 0;
+  padding: 0;
+}
+
+.register-container {
+  max-width: 400px;
+  margin: 5% auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #2a2a2a;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-top: 12px;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+}
+
+input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #3f51b5;
+  box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+}
+
+.link-right {
+  text-align: right;
+  margin-top: 8px;
+}
+
+.link-right a {
+  font-size: 14px;
+  color: #3f51b5;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.link-right a:hover {
+  color: #303f9f;
+  text-decoration: underline;
+}
+
+button {
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #3f51b5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #303f9f;
+}
+
+.message {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: #d32f2f;
+}
+
+.link-center {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.link-center a {
+  font-size: 14px;
+  color: #3f51b5;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.link-center a:hover {
+  color: #303f9f;
+  text-decoration: underline;
+}
+
+
+
+  .message-success {
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #dff0d8;
+  color: #2e7d32;
+  border: 1px solid #c3e6cb;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.message-error {
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #f8d7da;
+  color: #d32f2f;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 500;
+}
+.message-success,
+.message-error {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

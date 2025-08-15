@@ -1,0 +1,140 @@
+
+
+<div class="section-container" *ngIf="userRole === 'candidat'" >
+
+    <h3>Convention de stage candidat</h3>
+  <!-- Erreur -->
+  <div *ngIf="conventionError" class="alert alert-danger">
+    {{ conventionError }}
+  </div>
+
+  <!-- Spinner -->
+  <div *ngIf="loadingConventions" class="text-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Convention signée -->
+  <div *ngIf="!loadingConventions" class="signed-convention-section">
+    <div *ngIf="conventionSignee; else noConventionSignee" class="convention-compact">
+      <div class="rapport-header">
+        <div class="icon">
+          <i class="fas fa-check" style="color: green;"></i>
+        </div>
+        <div class="convention-info">
+          <span>Convention signée</span>
+          <span>Déposé le {{ formatDate(conventionSignee.date_depot) }}</span>
+        </div>
+        <a *ngIf="conventionSignee.lien" 
+           [href]="'http://localhost:3000/' + conventionSignee.lien" 
+           target="_blank" 
+           class="view-btn">
+          <i class="bi bi-eye"></i> Voir
+        </a>
+      </div>
+    </div>
+    <ng-template #noConventionSignee>
+      <div class="alert alert-info" class="state-message">
+         <i class="no-document fa-solid fa-info-circle"></i>  La convention signée n'a pas encore été déposée par le RH.
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Section upload -->
+ <div class="upload-section-compact d-flex align-items-center justify-content-between flex-wrap">
+  
+  <div class="left-buttons d-flex align-items-center gap-2">
+    <!-- Bouton upload -->
+    <button 
+      class="upload-square-btn" 
+      (click)="triggerFileUpload()" 
+      title="Ajouter une convention à signer "
+      [disabled]="conventionSignee"
+      [class.disabled-btn]="conventionSignee"
+      type="button">
+      <i class="upload-icon">⭳</i>
+    </button>
+
+    <!-- Bouton conventions à signer -->
+<button 
+  class="upload-square-btn toggle-btn" 
+  (click)="toggleConventionsASigner()"
+  [attr.aria-expanded]="showConventionsASigner"
+  aria-controls="conventionsList"
+  title="Voir conventions à signer">
+  
+  <i [ngClass]="showConventionsASigner ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+</button>
+  </div>
+  
+  <!-- Message à droite -->
+  <div class="upload-disabled-message" *ngIf="conventionSignee" class="state-message">
+     <i class="no-document fa-solid fa-info-circle"></i> convention signée existe déjà. Vous ne pouvez pas en déposer une nouvelle.
+  </div>
+
+  <input #conventionFileInput 
+         type="file" 
+         id="conventionFileInput"
+         (change)="onConventionFileSelected($event)"
+         accept=".pdf"
+         [disabled]="conventionSignee"
+         style="display: none;">
+</div>
+
+
+  
+
+  <div *ngIf="showConventionsASigner" class="other-conventions-list">
+    <div *ngIf="conventionsASigner.length > 0; else noConventionsASigner">
+      <div *ngFor="let convention of conventionsASigner" class="convention-compact">
+        <div class="convention-summary">
+          <span class="badge" [ngClass]="{
+            'bg-success': convention.statut === 'accepté',
+            'bg-danger': convention.statut === 'refusé',
+            'bg-warning': convention.statut === 'déposé'
+          }">
+            {{ convention.statut | uppercase }}
+          </span>
+          
+          <span class="date-info">Déposé: {{ formatDate(convention.date_depot) }}</span>
+          
+          <div *ngIf="convention.TraitementDocuments?.length"  class="traitements" >
+            <div *ngFor="let traitement of convention.TraitementDocuments"   ngIf="traitement.action='déposé'"class="traitement" >
+              <div class="traitement-info" >
+                <span class="traitement-action" [ngClass]="{
+                  'text-success': traitement.action === 'accepté',
+                  'text-danger': traitement.action === 'refusé'
+                }">
+                  {{ traitement.action }}
+                </span>
+                <span class="date-info">
+                  le {{ traitement.date_traitement | date:'dd/MM/yyyy' }}
+                </span>
+              </div>
+              <div *ngIf="traitement.commentaire" class="traitement-comment">
+                <i class="bi bi-chat-left-text"></i> {{ traitement.commentaire }}
+              </div>
+            </div>
+
+         
+          </div>
+
+          <a *ngIf="convention.lien" 
+             [href]="'http://localhost:3000/' + convention.lien" 
+             target="_blank" 
+             class="view-btn">
+            <i class="bi bi-eye"></i> Voir
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noConventionsASigner>
+      <div class="alert alert-info" class="state-message">
+         <i class="no-document fa-solid fa-info-circle"></i>  Aucune convention à signer déposée.
+      </div>
+    </ng-template>
+  </div>
+</div>
+

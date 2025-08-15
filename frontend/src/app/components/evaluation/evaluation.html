@@ -1,0 +1,93 @@
+<br>
+<div class="evaluation-page">
+    <br><br>
+  <h2 class="page-title">Stages en attente d’évaluation</h2>
+
+  <!-- Liste des stages en cartes -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <span>Chargement des stages...</span>
+  </div>
+
+  <div *ngIf="!loading && stages.length === 0" class="empty-state">
+   
+    <i class="fas fa-clipboard-list fa-4x" style="color:#303f9f; margin-bottom:10px;"></i>
+    <p>Aucun stage à évaluer pour le moment</p>
+  </div>
+
+  <div class="stage-grid" *ngIf="!loading && stages.length > 0">
+    <div *ngFor="let stage of stages" class="stage-card">
+      <div class="card-header">
+        <h3>{{ stage.sujet_stage }}</h3>
+        <span class="date-badge">{{ stage.date_debut | date:'shortDate' }} - {{ stage.date_fin | date:'shortDate' }}</span>
+      </div>
+      
+      <div class="card-body">
+        <div class="trainee-info">
+          <div class="avatar">{{ stage.Stagiaire.prenom.charAt(0) }}{{ stage.Stagiaire.nom.charAt(0) }}</div>
+          <div>
+            <p class="trainee-name">{{ stage.Stagiaire.prenom }} {{ stage.Stagiaire.nom }}</p>
+            <p class="trainee-email">{{ stage.Stagiaire.email }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card-footer">
+        <button class="evaluate-btn" (click)="openEvaluationModal(stage)">
+          <i class="icon-edit"></i> Créer évaluation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal d'évaluation -->
+  <div *ngIf="showModal" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Évaluation du stage</h3>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="stage-info">
+          <h4>{{ selectedStage?.sujet_stage }}</h4>
+          <p><strong>Stagiaire:</strong> {{ selectedStage?.Stagiaire.prenom }} {{ selectedStage?.Stagiaire.nom }}</p>
+          <p><strong>Période:</strong> {{ selectedStage?.date_debut | date:'mediumDate' }} - {{ selectedStage?.date_fin | date:'mediumDate' }}</p>
+        </div>
+        
+        <form [formGroup]="evaluationForm" class="evaluation-form">
+          <div class="form-group" *ngFor="let critere of ['comportement', 'travail_equipe', 'qualite_travail', 'adaptable']">
+            <label>{{ critere | titlecase }}</label>
+            <div class="rating-container">
+              <div *ngFor="let note of [1,2,3,4,5]" 
+                   class="rating-star"
+                   [class.active]="evaluationForm.get(critere)?.value >= note"
+                   (click)="setRating(critere, note)">
+                {{ note }}
+              </div>
+            </div>
+            <div *ngIf="formSubmitted && evaluationForm.get(critere)?.invalid" class="error-message">
+              Veuillez sélectionner une note
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Commentaire global</label>
+            <textarea formControlName="commentaire" placeholder="Décrivez les points forts et axes d'amélioration..." rows="4"></textarea>
+            <div class="char-counter">{{ evaluationForm.get('commentaire')?.value?.length || 0 }}/500</div>
+            <div *ngIf="formSubmitted && evaluationForm.get('commentaire')?.invalid" class="error-message">
+              Le commentaire ne doit pas dépasser 500 caractères
+            </div>
+          </div>
+        </form>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()">Annuler</button>
+        <button class="btn-primary" (click)="submitEvaluation()" [disabled]="evaluationForm.invalid">
+          <i class="icon-save"></i> Enregistrer l'évaluation
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

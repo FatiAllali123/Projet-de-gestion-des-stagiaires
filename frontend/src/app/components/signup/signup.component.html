@@ -1,0 +1,118 @@
+<div class="register-container">
+  <h2>Create Your Account</h2>
+
+  <form #signupForm="ngForm" (ngSubmit)="onSubmit(signupForm)" novalidate>
+
+    <label for="nom">Nom</label>
+    <input
+      id="nom"
+      name="nom"
+      [(ngModel)]="form.nom"
+      placeholder="Nom"
+      required
+      #nom="ngModel"
+    />
+    <div *ngIf="nom.invalid && nom.touched" class="error">Nom requis</div>
+
+    <label for="prenom">Prénom</label>
+    <input
+      id="prenom"
+      name="prenom"
+      [(ngModel)]="form.prenom"
+      placeholder="Prénom"
+      required
+      #prenom="ngModel"
+    />
+    <div *ngIf="prenom.invalid && prenom.touched" class="error">Prénom requis</div>
+
+    <label for="email">Email</label>
+    <input
+      id="email"
+      name="email"
+      type="email"
+      [(ngModel)]="form.email"
+      placeholder="Email"
+      required
+      email
+      #email="ngModel"
+    />
+    <div *ngIf="email.invalid && email.touched" class="error">
+      Adresse email invalide ou manquante
+    </div>
+
+    <label for="mot_de_pass">Mot de passe</label>
+    <input
+      id="mot_de_pass"
+      name="mot_de_pass"
+      type="password"
+      [(ngModel)]="form.mot_de_pass"
+      placeholder="Mot de passe"
+      required
+      minlength="6"
+      #mot_de_pass="ngModel"
+    />
+    <div *ngIf="mot_de_pass.invalid && mot_de_pass.touched" class="error">
+      Mot de passe requis (min. 6 caractères)
+    </div>
+     
+
+     
+    <label for="telt">Téléphone</label>
+    <input
+      id="telephone"
+      name="telephone"
+      [(ngModel)]="form.telephone"
+      
+      required
+      #telephone="ngModel"
+    />
+    <div *ngIf="telephone.invalid && telephone.touched" class="error">
+    Le numero de téléphone est requis
+    </div>
+
+    
+    <label for="etablissement">Etablissement</label>
+    <input
+      id="etablissement"
+      name="etablissement"
+      type="password"
+      [(ngModel)]="form.etablissement"
+      placeholder="Etablissement"
+      required
+      #etablissement="ngModel"
+    />
+    <div *ngIf="etablissement.invalid && etablissement.touched" class="error">
+      Le nom de l'etablissemnt est requis
+    </div>
+
+
+
+      <label for="etudes">Niveau d'études</label>
+    <input
+      id="etudes"
+      name="etudes"
+      [(ngModel)]="form.niveau_etudes"
+      required
+      #etudes="ngModel"
+    />
+    <div *ngIf="etudes.invalid && etudes.touched" class="error">
+      Niveau d'études est requis
+    </div>
+
+
+
+    <button type="submit" [disabled]="signupForm.invalid">S'inscrire</button>
+  </form>
+
+  <p *ngIf="message" [ngClass]="{'message-success': messageType === 'success', 'message-error': messageType === 'error'}">
+  {{ message }}
+</p>
+
+  <div style="text-align: center; margin-top: 16px;">
+    <a routerLink="/login" style="color: #3f51b5; text-decoration: none;">
+      Already have an account? Log in
+    </a>
+  </div>
+</div>
+
+<router-outlet></router-outlet>

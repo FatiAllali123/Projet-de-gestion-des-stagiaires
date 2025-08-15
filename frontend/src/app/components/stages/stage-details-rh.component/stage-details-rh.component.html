@@ -1,0 +1,399 @@
+<br><br><br><br>
+
+<div class="stage-details-container">
+
+  <button class="btn-back" (click)="goBack()">
+    <i class="bi bi-arrow-left"></i> Retour à la liste
+  </button>
+
+  <div *ngIf="loading" class="loading-animation">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+
+  <div *ngIf="!loading && stage" class="stage-content">
+
+    <div class="stage-header">
+      <h2>{{ stage.sujet_stage }}</h2>
+      <span class="status-badge" [ngClass]="getBadgeClass(stage.statut_stage)">
+        {{ stage.statut_stage }}
+      </span>
+    </div>
+
+      <div class="stage-period">
+        <i class="bi bi-calendar-week"></i>
+        {{ formatDate(stage.date_debut) }} - {{ formatDate(stage.date_fin) }}
+      </div>
+<br>
+      <div class="stage-info">
+      <div class="info-section">
+        <h3>Informations du stage</h3>
+        <p><i class="fa-solid fa-calendar-days"></i> <strong>Période :</strong> {{ formatDate(stage.date_debut) }} - {{ formatDate(stage.date_fin) }}</p>
+
+        <p><strong>Sujet de stage :</strong> {{ stage.sujet_stage || 'Non renseignée' }}</p>
+<p><strong>Mode :</strong> {{ stage.Candidature?.Offre?.mode_stage || 'Non renseigné' }}</p>
+<p><strong>Type :</strong> {{ stage.Candidature?.Offre?.type_stage || 'Non renseigné' }}</p>
+      </div>
+
+      <div class="info-section">
+  <h3><i class="fa-solid fa-id-badge"></i> Stagiaire</h3>
+  <p><i class="fa-solid fa-user"></i> <strong>Nom :</strong> {{ stage.Stagiaire?.prenom }} {{ stage.Stagiaire?.nom }}</p>
+  <p><i class="fa-solid fa-envelope"></i> <strong>Email :</strong> {{ stage.Stagiaire?.email || 'Non renseigné' }}</p>
+    <p><i class="fa-solid fa-graduation-cap"></i> <strong>Niveau d'études :</strong> 
+  {{ stage.Stagiaire?.niveau_etudes || 'Non renseigné' }}
+</p>
+
+<p><i class="fa-solid fa-school"></i> <strong>Établissement :</strong> 
+  {{ stage.Stagiaire?.etablissement || 'Non renseigné' }}
+</p>
+</div>
+
+      <div class="info-section">
+        <h3>Encadrant actuel</h3>
+        <div *ngIf="stage.Encadrant; else noEncadrant">
+        
+          <p><i class="fa-solid fa-user"></i> <strong>Nom :</strong> {{ stage.Encadrant.prenom }} {{ stage.Encadrant.nom }}</p>
+          <p><i class="fa-solid fa-envelope"></i> <strong>Email :</strong> {{ stage.Encadrant.email || 'Non renseigné' }}</p>
+          <p *ngIf="stage.Encadrant.specialite_encadrant">
+            <strong>Spécialité :</strong> {{ stage.Encadrant.specialite_encadrant }}
+          </p>
+
+        </div>
+        <ng-template #noEncadrant>
+          <p class="text-muted">Aucun encadrant affecté</p>
+        </ng-template>
+      </div>
+    </div>
+
+<br>
+
+    <!-- section encadrant-->
+    <div class="actions-section">
+      <button class="btn-encadrant" (click)="toggleEncadrantList()">
+        {{ stage.Encadrant ? 'Modifier l\'encadrant' : 'Affecter un encadrant' }}
+      </button>
+    </div>
+
+    <div *ngIf="showEncadrantList" class="encadrant-list-container">
+
+  <div class="encadrant-list">
+    <div 
+      *ngFor="let encadrant of encadrants" 
+      class="encadrant-item" 
+      [class.selected]="selectedEncadrantId === encadrant.id"
+      (click)="selectEncadrant(encadrant.id)">
+      
+      <div class="encadrant-info">
+        <h4>{{ encadrant.prenom }} {{ encadrant.nom }}</h4>
+        <p class="email">{{ encadrant.email }}</p>
+        <p *ngIf="encadrant.specialite_encadrant" class="specialite">{{ encadrant.specialite_encadrant }}</p>
+      </div>
+      
+      <div *ngIf="selectedEncadrantId === encadrant.id" class="selected-icon">
+        <i class="bi bi-check-circle-fill"></i>
+      </div>
+    </div>
+
+    <div *ngIf="encadrants.length === 0" class="no-results">
+      Aucun encadrant trouvé
+    </div>
+  </div>
+
+  <div class="actions">
+    <button 
+      class="btn-confirm" 
+      [disabled]="!selectedEncadrantId || isAffecting"
+      (click)="affecterOuModifierEncadrant()">
+      <span *ngIf="!isAffecting">
+        {{ stage.Encadrant ? 'Modifier' : 'Affecter' }}
+      </span>
+      <span *ngIf="isAffecting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    </button>
+    <button class="btn-cancel" (click)="showEncadrantList = false">Annuler</button>
+  </div>
+</div>
+
+
+</div>
+
+
+
+
+
+     <!--Conventions-->
+  <!-- Affichage de la convention signée uniquement -->
+  <div class="convention-compact" *ngIf="getSignedConvention() as signedConv">
+
+      <div class="rapport-header">
+        <div class="icon">
+          <i class="fas fa-check" style="color: green;"></i>
+        </div>
+        <div class="convention-info">
+          <span>Convention signée</span>
+          <span>Déposé le {{ formatDate(signedConv.date_depot) }}</span>
+        </div>
+        <a *ngIf="signedConv.lien"
+           [href]="'http://localhost:3000/' + signedConv.lien"
+           target="_blank"
+           class="view-btn">
+          <i class="bi bi-eye"></i> Voir
+        </a>
+      </div>
+    </div>
+  <!-- Message si aucune convention signée -->
+  <div *ngIf="!getSignedConvention()" class="no-data">
+    <i class="fas fa-info-circle"></i> Aucune convention signée disponible
+  </div>
+
+
+
+
+         <!-- Rapport -->
+<div class="document-card">
+        <div class="document-header">
+  <h3><i class="bi bi-file-earmark-text"></i> Rapport validé</h3>
+  <div *ngIf="rapportValide" class="document-date">
+    <i class="bi bi-calendar"></i>
+    Déposé le {{ rapportValide.date_depot | date:'dd/MM/yyyy' }}
+  </div>
+        </div>
+        <div class="document-body">
+          <div *ngIf="rapportError" class="error-message">
+            <i class="bi bi-exclamation-triangle"></i>
+            {{ rapportError }}
+          </div>
+          
+          <div *ngIf="rapportValide; else noRapport">
+            <a class="document-btn" 
+               href="http://localhost:3000/{{ rapportValide.lien }}" 
+               target="_blank">
+<i class="fa-solid fa-file-lines"></i> Voir le rapport
+            </a>
+           
+          </div>
+          <ng-template #noRapport>
+            <div class="state-message">
+              <i class="no-document fa-solid fa-info-circle"></i>
+              Rapport validé pas encore disponible
+            </div>
+          </ng-template>
+        </div>
+</div>
+
+
+<br><br>
+  <!-- Section Attestation de stage -->
+<div class="document-card">
+  <div class="document-header">
+    <h3 class="attestation-title">Attestation de stage</h3>
+    <div class="document-date" *ngIf="attestationExiste">
+                <i class="bi bi-calendar"></i>
+                <span>Générée le {{ attestation.date_depot | date:'dd/MM/yyyy' }}</span>
+              
+    </div>
+  </div>
+
+<div class="attestation-body">
+  <!-- Message d'erreur -->
+  <div *ngIf="attestationError" class="attestation-error">
+    <i class="fas fa-exclamation-circle"></i> {{ attestationError }}
+  </div>
+
+    <!-- Stage non terminé -->
+    <div *ngIf="!rapportValideExiste" class="attestation-state" style="display: flex; align-items: center;">
+  <div class="state-message">
+    <i class="no-document fa-solid fa-info-circle"></i> <!-- ajoute une icône visible -->
+     Impossible de générer l'attestation tant qu'il n'y a pas de rapport de stage validé.
+  </div>
+  </div>
+ 
+
+
+    <!-- Stage avec rapport valide - Pas d'attestation -->
+
+<div *ngIf="rapportValideExiste && !attestationExiste" class="attestation-state">
+  <div class="attestation-action-horizontal">
+    <button class="document-btn" 
+            (click)="genererAttestation()"
+            [disabled]="generatingAttestation">
+      <span *ngIf="!generatingAttestation">
+        <i class="fas fa-file-contract"></i> Générer l'attestation
+      </span>
+      <span *ngIf="generatingAttestation">
+        <i class="fas fa-spinner fa-spin"></i> En cours...
+      </span>
+    </button>
+    <div class="attestation-ready-message-right">
+      <i class="fas fa-check-circle"></i> Prêt à générer l'attestation
+    </div>
+  </div>
+</div>
+
+
+</div>
+
+  
+
+    <!-- Stage avec rapport valide - Attestation existante -->
+ <div *ngIf="rapportValideExiste && attestationExiste" class="attestation-state inline">
+  <a class="document-btn" 
+     href="http://localhost:3000/{{ attestation.lien }}" 
+     target="_blank">
+    <i class="fa-solid fa-file-circle-check"></i> Voir l'attestation
+  </a>
+     <div class="attestation-ready-message-right">
+      <i class="fas fa-check-circle"></i> Attestation disponible
+    </div>
+</div>
+
+</div>
+
+
+
+<br><br>
+<!-- Évaluation -->
+<div class="document-card">
+  <div class="document-header">
+    <h2><i class="bi bi-clipboard2-pulse"></i> Évaluation du stagiaire</h2>
+    <div *ngIf="evaluation?.date_evaluation" class="document-date">
+ 
+      Déposée le {{ evaluation.date_evaluation | date:'dd/MM/yyyy' }}
+    </div>
+  </div>
+   <div class="eval-body">
+  <!-- 1️⃣ Stage pas encore terminé -->
+  <div *ngIf="stage.statut_stage !== 'Terminé'" class="state-message">
+    <i class="bi bi-info-circle"></i>
+    <i class="no-document fa-solid fa-info-circle"></i> L'évaluation sera disponible une fois le stage terminé
+  </div>
+
+  <!-- 2️⃣ Stage terminé -->
+  <div *ngIf="stage.statut_stage === 'Terminé'">
+    <!-- Erreur -->
+    <div *ngIf="evaluationError" class="error-message">
+      <i class="bi bi-exclamation-triangle"></i>
+      {{ evaluationError }}
+    </div>
+
+    <!-- Évaluation existante -->
+    <div *ngIf="evaluation && evaluation.date_evaluation; else noEvaluation">
+      <button class="toggle-evaluation-btn" 
+              (click)="showEvaluationView = !showEvaluationView">
+        <i class="bi" [class.bi-eye]="!showEvaluationView" [class.bi-eye-slash]="showEvaluationView"></i>
+        <i class="fa-solid fa-star"></i> 
+        {{ showEvaluationView ? 'Masquer' : 'Consulter' }} l'évaluation
+      </button>
+
+      <div *ngIf="showEvaluationView" class="evaluation-details">
+        <div class="criteria-grid">
+          <div class="criterion">
+            <label>Comportement</label>
+            <div class="rating">
+              <div class="stars" [style.--rating]="evaluation.comportement"></div>
+              <span class="score">{{ evaluation.comportement }}/5</span>
+            </div>
+          </div>
+          <div class="criterion">
+            <label>Travail d'équipe</label>
+            <div class="rating">
+              <div class="stars" [style.--rating]="evaluation.travail_equipe"></div>
+              <span class="score">{{ evaluation.travail_equipe }}/5</span>
+            </div>
+          </div>
+          <div class="criterion">
+            <label>Qualité du travail</label>
+            <div class="rating">
+              <div class="stars" [style.--rating]="evaluation.qualite_travail"></div>
+              <span class="score">{{ evaluation.qualite_travail }}/5</span>
+            </div>
+          </div>
+          <div class="criterion">
+            <label>Adaptabilité</label>
+            <div class="rating">
+              <div class="stars" [style.--rating]="evaluation.adaptable"></div>
+              <span class="score">{{ evaluation.adaptable }}/5</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="evaluation.commentaire" class="comment-box">
+          <h4><i class="bi bi-chat-square-text"></i> Commentaire</h4>
+          <p>{{ evaluation.commentaire }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3️⃣ Stage terminé mais pas d'évaluation -->
+    <ng-template #noEvaluation>
+      <div class="state-message">
+      
+        <i class="no-document fa-solid fa-info-circle"></i> Évaluation pas encore disponible
+      </div>
+    </ng-template>
+  </div>
+   </div>
+</div>
+
+
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+

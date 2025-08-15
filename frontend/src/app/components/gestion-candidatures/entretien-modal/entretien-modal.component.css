@@ -1,0 +1,138 @@
+/* Fond sombre semi-transparent */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(53, 53, 55, 0.3); /* bleu foncé translucide */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+/* Boîte modale */
+.modal-dialog {
+  background-color: white;
+  border-radius: 8px;
+  width: 400px;
+  box-shadow: 0 8px 24px rgba(48, 63, 159, 0.3);
+  animation: fadeInScale 0.3s ease forwards;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* En-tête du modal */
+.modal-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #7e7e83;
+  color: white;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+  height:30px;
+}
+
+/* Bouton fermer */
+.btn-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.3s ease;
+}
+
+.btn-close:hover {
+  color: #ff9800;
+}
+
+/* Corps du modal */
+.modal-body {
+  padding: 1rem 1.5rem;
+  background-color: #fafafa; /* gris très clair */
+}
+
+/* Labels */
+.form-label {
+  font-weight: 600;
+  color: #303f9f;
+  margin-bottom: 0.4rem;
+  display: block;
+}
+
+/* Inputs */
+.form-control {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  transition: border-color 0.3s ease;
+  width:300px;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #ff9800;
+  box-shadow: 0 0 5px #ff9800aa;
+}
+
+/* Pied de page du modal */
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e0e0e0;
+  background-color: white;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* Boutons */
+.btn {
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease;
+  font-size: 1rem;
+}
+
+/* Bouton secondaire */
+.btn-secondary {
+  background-color: #e0e0e0;
+  color: #424242;
+}
+
+.btn-secondary:hover {
+  background-color: #d6d6d6;
+}
+
+/* Bouton principal */
+.btn-primary {
+  background-color: #ff9800;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #e68a00;
+}

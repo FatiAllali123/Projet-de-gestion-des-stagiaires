@@ -1,0 +1,577 @@
+/* Conteneur principal */
+.container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1rem 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #424242;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(48, 63, 159, 0.1);
+}
+
+/* Titre */
+.container h2 {
+  color: #303f9f;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+/* Description sous titre */
+.text-muted {
+  color: #666;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  font-style: italic;
+}
+
+
+/* Back Button */
+.btn-back {
+  background: none;
+  border: none;
+  color: #0d6efd;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+
+.btn-back i {
+  font-size: 1.2rem;
+}
+
+
+/* Filtre label */
+
+.form-select:focus {
+  outline: none;
+  border-color: #303f9f;
+  box-shadow: 0 0 5px #303f9f80;
+}
+
+.filter-container {
+  background: #f8f9fa;
+  padding: 1rem 1.2rem;
+  border-radius: 6px;
+  border: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.filter-container label {
+  font-weight: 500;
+  color: #303f9f;
+}
+
+.filter-container select {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+}
+
+.filter-container select:focus {
+  outline: none;
+  border-color: #303f9f;
+  box-shadow: 0 0 0 2px rgba(48, 63, 159, 0.1);
+}
+
+
+
+
+/* Alert erreur */
+.alert-danger {
+  background-color: #ffe0b2;
+  border-left: 5px solid #e66a00;
+  color: #424242;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.alert-danger .btn-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #e66a00;
+  font-weight: 700;
+}
+
+/* Liste des candidatures - card */
+.list-group-item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+  background-color: #fff;
+  box-shadow: 0 2px 8px #303f9f10;
+}
+
+/* En-tête candidature */
+.d-flex.justify-content-between.align-items-start.mb-2 {
+  margin-bottom: 0.5rem;
+}
+.d-flex.justify-content-between.align-items-start.mb-2 h5 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: black;
+  font-weight: 700;
+}
+.d-flex.justify-content-between.align-items-start.mb-2 .text-muted {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+
+
+
+/* Modal backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background-color: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1050;
+}
+
+/* Modal content */
+.modal-content {
+  background-color: white;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 450px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 6px 20px rgba(48, 63, 159, 0.2);
+  position: relative;
+}
+
+/* Modal header */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.modal-header h5 {
+  margin: 0;
+  color: #303f9f;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+.modal-header .btn-close {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #e66a00;
+  font-weight: 700;
+}
+
+/* Modal body form */
+.modal-body .form-label {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+.modal-body input,
+.modal-body select {
+  width: 90%;
+  padding: 0.5rem 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  border: 1.5px solid #ccc;
+  font-size: 1rem;
+  color: #424242;
+  transition: border-color 0.3s ease;
+}
+.modal-body input:focus,
+.modal-body select:focus {
+  outline: none;
+  border-color: #303f9f;
+  box-shadow: 0 0 5px #303f9f80;
+}
+
+/* Modal footer buttons */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+.modal-footer .btn-secondary {
+  background-color: #e66a00;
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.modal-footer .btn-secondary:hover {
+  background-color: #cc5d00;
+}
+.modal-footer .btn-primary {
+  background-color: #303f9f;
+  color: white;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.modal-footer .btn-primary:hover {
+  background-color: #243673;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem;
+  }
+  .form-select {
+    width: 100%;
+  }
+  .btn-group .btn {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+}
+
+
+
+
+
+/* Conteneur principal de l'en-tête */
+.candidature-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+/* Partie gauche - Informations candidat */
+.candidat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.name-email-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.candidat-name {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #303f9f;
+  font-weight: 600;
+}
+
+.candidat-email {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.postulation-date {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+/* Partie droite - Statuts */
+.status-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.status-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.status-badge {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 12px;
+  text-transform: uppercase;
+  min-width: 140px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Couleurs des statuts */
+.status-en-cours { background-color: #dbd4d4;  
+  color: #757171;}
+.status-preselection {   background-color: #fff3e0;
+  color: #e65100; }
+.status-entretien { background-color: #d2e3f2; color: #2196f3; }
+.status-acceptee {   background-color: #dce2d6;
+  color: #55a547; }
+.status-refusee { background-color: #eb5f54; color: white; }
+
+
+
+
+/* Conteneur principal */
+.documents-actions-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+/* Section Documents */
+.documents-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.documents-title {
+  font-weight: 600;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.documents-buttons {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.document-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #ddd;
+}
+
+.cv-btn {
+  background-color: #f5f5f5;
+  color: #d32f2f;
+}
+
+.cv-btn:hover {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.lettre-btn {
+  background-color: #f5f5f5;
+  color: #1976d2;
+}
+
+.lettre-btn:hover {
+  background-color: #1976d2;
+  color: white;
+}
+
+/* Section Actions */
+.actions-section {
+  display: flex;
+}
+
+.actions-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.action-btn {
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-accept { background-color: #c9e4cb; color: #1b931b; }
+.btn-accept:hover { background-color: #c8e6c9; }
+
+.btn-reject { background-color: #ffebee; color: #c62828; }
+.btn-reject:hover { background-color: #ffcdd2; }
+
+.btn-preselect { background-color: #e3f2fd; color: #1565c0; }
+.btn-preselect:hover { background-color: #bbdefb; }
+
+.btn-cancel { background-color: #fff3e0; color: #e65100; }
+.btn-cancel:hover { background-color: #ffe0b2; }
+
+/* Date */
+.postulation-date-container {
+  text-align: left;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+/* Icônes */
+.fas {
+  font-size: 0.9rem;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 500px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.wide-modal {
+  width: 800px;
+  max-width: 90%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.modal-header h5 {
+  margin: 0;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 1rem;
+  color: #212529;
+}
+
+.table th, .table td {
+  padding: 0.75rem;
+  vertical-align: top;
+  border-top: 1px solid #dee2e6;
+}
+
+.table thead th {
+  vertical-align: bottom;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.4em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25rem;
+
+}
+
+
+
+/* Style pour le conteneur du message */
+.accepted-period-container {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Style pour le badge de période acceptée */
+.accepted-period-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #e8f5e9;
+  border-radius: 4px;
+  color: #2e7d32;
+  font-size: 14px;
+}
+
+.accepted-period-badge i {
+  color: #2e7d32;
+}
+
+.accepted-period-badge strong {
+  font-weight: 500;
+}
+

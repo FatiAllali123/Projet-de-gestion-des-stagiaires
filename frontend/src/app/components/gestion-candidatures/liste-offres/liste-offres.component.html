@@ -1,0 +1,62 @@
+<br><br><br>
+<div class="container mt-4">
+
+<div class="filter-container">
+  <label for="statusFilter">Filtrer par statut :</label>
+  <select id="statusFilter" [(ngModel)]="currentFilter" (change)="onFilterChange()">
+    <option *ngFor="let option of filterOptions" [value]="option.value">
+      {{ option.label }}
+    </option>
+  </select>
+
+  <span class="results-count" *ngIf="filteredOffres.length !== offres.length">
+    ({{ filteredOffres.length }} résultat(s))
+  </span>
+</div>
+  <!-- Message de chargement -->
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = null" aria-label="Close"></button>
+  </div>
+
+  <!-- Message quand aucune offre n'existe -->
+  <div *ngIf="noOffersAvailable && !loading" class="alert alert-info">
+    <p>Aucune offre disponible pour le moment.</p>
+   
+  </div>
+
+  <!-- Liste des offres -->
+<div *ngIf="!noOffersAvailable && !loading" class="list-group mt-3">
+  <div *ngFor="let offre of filteredOffres" class="list-group-item">
+    
+    <div class="offer-header">
+      <div class="offer-title-date">
+        <h5>{{ offre.titre }}</h5>
+        <small class="offer-date">{{ offre.created_at | date:'dd/MM/yyyy' }}</small>
+      </div>
+
+      <span class="offer-status" 
+            [ngClass]="offre.statut_offre === 'Actif' ? 'actif' : 'inactif'">
+        {{ offre.statut_offre }}
+      </span>
+    </div>
+
+    <p class="offer-description">{{ offre.description }}</p>
+
+    <div class="offer-footer">
+      <button class="btn-see-candidatures" (click)="offreSelected.emit(offre.id)">
+        Voir candidatures
+      </button>
+    </div>
+  </div>
+</div>
+
+
+</div>

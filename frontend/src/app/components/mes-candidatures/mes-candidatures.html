@@ -1,0 +1,164 @@
+<div class="container">
+  <h2>Mes Candidatures</h2>
+
+  <!-- Filtre -->
+  <div class="filter">
+    <label for="statut">Filtrer par statut :</label>
+    <select [(ngModel)]="filtreStatut" (change)="appliquerFiltre()">
+      <option value="">-- Tous --</option>
+      <option value="En cours d'execution">En cours d'exécution</option>
+      <option value="Acceptée">Acceptée</option>
+      <option value="Refusée">Refusée</option>
+      <option value="Annulée">Annulée</option>
+    </select>
+    <button (click)="resetFiltre()">Réinitialiser</button>
+  </div>
+
+  <!-- Chargement -->
+  <div *ngIf="loading">Chargement...</div>
+
+  <!-- Erreur -->
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <!-- Résultat -->
+  <div *ngIf="!loading && candidatures.length === 0">Aucune candidature trouvée.</div>
+
+  <div *ngIf="!loading && candidatures.length > 0">
+    <div *ngFor="let c of candidatures" class="candidature-card">
+      <h3>{{ c.Offre?.titre }}</h3>
+      <p><strong>Statut :</strong> {{ c.statut_candidature }}</p>
+      <p><strong>Date :</strong> {{ c.date_creation | date:'dd/MM/yyyy' }}</p>
+      <p><strong>Type :</strong> {{ c.Offre?.type_stage }} | <strong>Mode :</strong> {{ c.Offre?.mode_stage }}</p>
+      <p><strong>Durée :</strong> {{ c.Offre?.duree }}</p>
+      <p><strong>Compétences :</strong> {{ c.Offre?.competences_requises }}</p>
+
+    <!-- Bouton toujours visible -->
+  <button (click)="chargerPropositions(c.id!)" class="btn-propositions" *ngIf="c.statut_candidature==='Acceptée'">
+ Propositions de périodes de stage
+  </button>
+
+
+
+   <!-- Message d'état amélioré -->
+  <div class="proposition-status">
+    <div *ngIf="hasPendingPropositions(c)" class="status-pending">
+      <i class="fas fa-clock"></i> Vous avez {{ countPendingPropositions(c) }} proposition(s) en attente
+    </div>
+    <div *ngIf="hasAcceptedProposition(c)" class="status-accepted">
+      <i class="fas fa-check-circle"></i> Période validée: du {{ getAcceptedPropositionDate(c, 'debut') }} au {{ getAcceptedPropositionDate(c, 'fin') }}
+    </div>
+  
+  </div>
+
+
+
+      <a [href]="getFileUrl(c.cv)" target="_blank">📄 CV</a> |
+      <a [href]="getFileUrl(c.lettre_motivation)" target="_blank">📄 Lettre de motivation</a>
+
+       <!-- Bouton Annuler visible seulement si statut En cours d'execution -->
+    <div *ngIf="c.statut_candidature === 'En cours d\'execution'" style="margin-top: 10px;">
+      <button (click)="annulerCandidature(c.id!)" class="btn-annuler">Annuler</button>
+    </div>
+
+
+
+    </div>
+  </div>
+
+
+
+<!-- Modal pour les propositions -->
+<div *ngIf="showPropositionsModal" class="modal-backdrop">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Propositions pour {{selectedCandidature?.Offre?.titre}}</h3>
+      <button (click)="showPropositionsModal = false" class="btn-close">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="tabs">
+        <button [class.active]="activeTab === 'nonTraitees'" (click)="activeTab = 'nonTraitees'">
+          En attente ({{propositions.length}})
+        </button>
+        <button [class.active]="activeTab === 'traitees'" (click)="activeTab = 'traitees'">
+          Traitées ({{propositionsTraitees.length}})
+        </button>
+      </div>
+
+      <!-- Contenu des onglets -->
+      <div class="tab-content">
+        <!-- Onglet Non Traitées -->
+        <div *ngIf="activeTab === 'nonTraitees'" class="tab-pane">
+          <div *ngIf="propositions.length === 0" class="no-propositions">
+            Aucune proposition en attente de traitement.
+          </div>
+
+          <div *ngFor="let proposition of propositions" 
+               class="proposition-card"
+               [class.selected]="proposition.id === selectedProposition?.id"
+               (click)="selectProposition(proposition)">
+            <div class="proposition-header">
+              <h4>Proposition du {{ proposition.date_proposition | date:'dd/MM/yyyy' }}</h4>
+              <span class="badge pending">En attente</span>
+            </div>
+            <div class="proposition-dates">
+              Du <strong>{{ proposition.date_debut_proposee | date:'dd/MM/yyyy' }}</strong>
+              au <strong>{{ proposition.date_fin_proposee | date:'dd/MM/yyyy' }}</strong>
+            </div>
+            <div *ngIf="proposition.commentaire" class="proposition-comment">
+              <strong>Commentaire RH :</strong> {{ proposition.commentaire }}
+            </div>
+          </div>
+
+          <!-- Formulaire de traitement -->
+          <div *ngIf="selectedProposition" class="proposition-form">
+            <h4>Traiter la proposition</h4>
+            <div class="form-group">
+              <label for="commentaire">Votre commentaire (optionnel)</label>
+              <textarea id="commentaire" [(ngModel)]="commentaire" rows="3"></textarea>
+            </div>
+
+            <div class="action-buttons">
+              <button (click)="traiterProposition('accepter')" class="btn-accept">
+                <i class="fas fa-check"></i> Accepter
+              </button>
+              <button (click)="traiterProposition('refuser')" class="btn-refuse">
+                <i class="fas fa-times"></i> Refuser
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Onglet Traitées -->
+        <div *ngIf="activeTab === 'traitees'" class="tab-pane">
+          <div *ngIf="propositionsTraitees.length === 0" class="no-propositions">
+            Aucune proposition traitée.
+          </div>
+
+          <div *ngFor="let proposition of propositionsTraitees" class="proposition-card">
+            <div class="proposition-header">
+              <h4>Proposition du {{ proposition.date_proposition | date:'dd/MM/yyyy' }}</h4>
+              <span class="badge" [ngClass]="{
+                'accepted': proposition.statut === 'acceptée',
+                'refused': proposition.statut === 'refusée'
+              }">
+                {{ proposition.statut }}
+              </span>
+            </div>
+            <div class="proposition-dates">
+              Du <strong>{{ proposition.date_debut_proposee | date:'dd/MM/yyyy' }}</strong>
+              au <strong>{{ proposition.date_fin_proposee | date:'dd/MM/yyyy' }}</strong>
+            </div>
+            <div class="proposition-details">
+              <p><strong>Traitée le :</strong> {{ proposition.date_traitement | date:'dd/MM/yyyy' }}</p>
+              <p *ngIf="proposition.commentaire"><strong>Commentaire :</strong> {{ proposition.commentaire }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+</div>

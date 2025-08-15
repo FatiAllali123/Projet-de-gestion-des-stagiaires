@@ -1,0 +1,44 @@
+h2 {
+  max-width: 400px;
+  margin: auto;
+  margin-bottom: 22px;
+  width: 100%;
+}
+
+/* Style pour la navbar fixe */
+app-nav-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  height: 60px; 
+}
+
+
+
+/* Style pour la sidebar fixe */
+app-sidebar {
+  position: fixed;
+  top: 60px; /* Position juste en dessous de la navbar */
+  left: 0;
+  width: 250px; 
+  height: calc(100vh - 60px); /* Prend toute la hauteur restante de l'écran */
+  background-color: #f5f5f5;
+  overflow-y: auto; /* Permet de défiler si le contenu de la sidebar est trop long */
+  z-index: 900;
+}
+
+/* Ajustement du contenu principal pour qu'il ne soit pas caché par la sidebar */
+.content {
+  flex: 1;
+  margin-left: 250px; /* Même valeur que la largeur de la sidebar */
+  padding-left: 30px;
+  padding-right: 30px;
+  background-color: #ffffff;
+  min-height: calc(100vh - 60px); /* Hauteur minimale pour remplir l'écran */
+
+}
+

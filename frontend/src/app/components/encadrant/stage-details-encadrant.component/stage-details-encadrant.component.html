@@ -1,0 +1,331 @@
+
+
+<div class="stage-details-container">
+  <br><br><br><br>
+  <button class="btn-back" (click)="goBack()">
+    <i class="bi bi-arrow-left"></i> Retour à la liste
+  </button>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && stage" class="stage-content">
+     <div class="stage-header">
+      <h2>{{ stage.sujet_stage }}</h2>
+      <span class="status-badge" [ngClass]="getBadgeClass(stage.statut_stage)">
+        {{ stage.statut_stage }}
+      </span>
+    </div>
+      <div class="stage-period">
+        <i class="bi bi-calendar-week"></i>
+        {{ formatDate(stage.date_debut) }} - {{ formatDate(stage.date_fin) }}
+      </div>
+      <br>
+<!-- section stage infos -->
+    <div class="stage-info">
+      <div class="info-section">
+        <h3>Informations du stage</h3>
+        <p><i class="fa-solid fa-calendar-days"></i> <strong>Période :</strong> {{ formatDate(stage.date_debut) }} - {{ formatDate(stage.date_fin) }}</p>
+        <p><strong>Sujet de stage :</strong> {{ stage.sujet_stage || 'Non renseignée' }}</p>
+      </div>
+
+      <div class="info-section">
+        <h3>Stagiaire</h3>
+        <p><i class="fa-solid fa-user"></i> <strong>Nom :</strong> {{ stage.Stagiaire?.prenom }} {{ stage.Stagiaire?.nom }}</p>
+        <p><i class="fa-solid fa-envelope"></i><strong>Email :</strong> {{ stage.Stagiaire?.email || 'Non renseigné' }}</p>
+      </div>
+    </div>
+
+  </div>
+
+    <!-- Section Rapports -->
+<div class="section-container">
+  <h3>Rapports déposés</h3>
+
+  <div *ngIf="rapports.length === 0" class="no-data">
+    Aucun rapport déposé pour ce stage.
+  </div>
+
+  <!-- Rapports -->
+ <div class="rapport-card" 
+     *ngFor="let rapport of rapports" 
+     [ngClass]="{'rapport-accepte': rapport.statut === 'accepté', 'first-accepted': isFirstAccepted(rapport)}">
+
+    <!-- Ligne compacte -->
+    <div class="rapport-header">
+        <span class="badge" [ngClass]="getStatutClass(rapport.statut)">
+        {{ rapport.statut }}
+      </span>
+
+       <span class="rapport-date" *ngIf="rapport.statut === 'déposé'">
+        Déposé le : {{ rapport.date_depot | date }}
+      </span>
+
+
+      <span class="rapport-date" *ngIf="rapport.statut !== 'déposé' && rapport.TraitementDocuments?.length > 0">
+        Traité le : {{ rapport.TraitementDocuments[0].date_traitement | date }}
+      </span>
+
+      <a class="btn-voir" [href]="'http://localhost:3000/' + rapport.lien" target="_blank">
+        📄 Voir le rapport
+      </a>
+
+    
+
+     
+
+
+      <!-- Bouton pour afficher/cacher le commentaire -->
+<button class="btn-toggle-comment" (click)="toggleComment(rapport.id)">
+  <svg class="comment-icon" [class.rotated]="showComment[rapport.id]" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M6 9l6 6 6-6"/>
+  </svg>
+</button>
+    </div>
+
+    <!-- Footer : actions / commentaires -->
+    <div class="rapport-footer" *ngIf="showComment[rapport.id]">
+      <ng-container *ngIf="rapport.statut === 'déposé'">
+        <textarea [(ngModel)]="rapport.commentaire" placeholder="Commentaire (optionnel)"></textarea>
+        <div class="buttons">
+          <button class="btn btn-sm btn-success"
+                  [disabled]="processingRapport"
+                  (click)="traiterRapport(rapport.id, 'accepter')">
+            Accepter
+          </button>
+          <button class="btn btn-sm btn-danger"
+                  [disabled]="processingRapport"
+                  (click)="traiterRapport(rapport.id, 'refuser')">
+            Refuser
+          </button>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="rapport.statut !== 'déposé' && rapport.TraitementDocuments?.length > 0">
+        <p><strong>Commentaire :</strong> {{ rapport.TraitementDocuments[0].commentaire }}</p>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Section Absences -->
+
+<div class="section-container">
+  <h3>Gestion des absences</h3>
+  
+  <!-- Message d'erreur pour les absences -->
+  <div *ngIf="absenceError" class="alert alert-danger">
+    {{ absenceError }}
+  </div>
+
+  <button 
+    class="btn-action" 
+    (click)="toggleAbsenceForm()"
+    *ngIf="stage.statut_stage === 'En cours'">
+    {{ showAbsenceForm ? 'Annuler' : 'Marquer une absence' }}
+  </button>
+<div *ngIf="showAbsenceForm" class="form-container">
+        <form [formGroup]="absenceForm">
+          <div class="form-group">
+            <label for="date_absence">Date de l'absence</label>
+            <input 
+              type="date" 
+              id="date_absence" 
+              formControlName="date_absence"
+              [max]="today">
+          </div>
+          <div class="form-actions">
+            <button 
+              type="button" 
+              class="btn-confirm-absence"
+              [disabled]="absenceForm.invalid"
+              (click)="submitAbsence()">
+              Enregistrer
+            </button>
+          </div>
+        </form>
+      </div>
+
+<br><br>
+  <!-- Liste des absences -->
+  <div *ngIf="absences.length > 0" class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Statut</th>
+          <th>Actions</th>
+          <th></th> <!-- Colonne pour le bouton historique -->
+        </tr>
+      </thead>
+      <tbody>
+  <ng-container *ngFor="let absence of absences">
+    <!-- Ligne principale -->
+    <tr>
+      <td>{{ formatDate(absence.date_absence) }}</td>
+      <td>
+        <span class="badge" [ngClass]="absence.is_justified ? 'justified' : 'not-justified'">
+          {{ absence.is_justified ? 'Justifiée' : 'Non justifiée' }}
+        </span>
+      </td>
+      <td>
+        <div class="actions-container">
+          <!-- Justificatif -->
+          <div *ngIf="!absence.is_justified && justificationStatus[absence.id]?.justification" class="justificatif-block">
+            <a [href]="'http://localhost:3000/' + justificationStatus[absence.id].justification.lien" 
+               target="_blank" 
+               class="btn-document">
+              📄 Voir justificatif
+            </a>
+
+            <!-- Boutons accepter / refuser -->
+            <div class="decision-buttons">
+              <button class="btn-confirm" (click)="startDecision(absence.id, 'accepter')" title="Accepter">
+                <i class="fas fa-check"></i>
+              </button>
+              <button class="btn-cancel" (click)="startDecision(absence.id, 'refuser')" title="Refuser">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- En attente -->
+          <div *ngIf="!absence.is_justified && !justificationStatus[absence.id]?.justification">
+            <span class="text-muted">En attente de justificatif</span>
+          </div>
+
+          <!-- Déjà justifié -->
+          <div *ngIf="absence.is_justified && justificationStatus[absence.id]?.justification">
+            <a [href]="'http://localhost:3000/' + justificationStatus[absence.id]?.justification.lien" 
+               target="_blank"
+               class="btn-document">
+              📄 Voir le justificatif
+            </a>
+          </div>
+        </div>
+      </td>
+    </tr>
+
+    <!-- Ligne commentaire + validation -->
+
+<tr *ngIf="selectedDecision.absenceId === absence.id">
+  <td colspan="3" class="comment-cell">
+    <button class="btn-cancel-decision" (click)="cancelDecision()" title="Annuler">
+      ✖
+    </button>
+    <div class="comment-validation">
+      <textarea [(ngModel)]="commentaire"
+                placeholder="Commentaire (optionnel)"
+                class="form-comment"></textarea>
+      
+      <button class="btn-validate" 
+              (click)="validateDecision(absence.id)"
+              [disabled]="processingJustification">
+        {{ processingJustification ? 'Traitement...' : 'Valider' }}
+      </button>
+    </div>
+  </td>
+</tr>
+
+
+  </ng-container>
+</tbody>
+
+    </table>
+  </div>
+
+
+  <div *ngIf="absences.length === 0" class="no-data">
+    Aucune absence enregistrée pour ce stage.
+  </div>
+</div>
+
+
+  <!-- Section Évaluation -->
+<div class="section-container">
+  <div class="document-header">
+    <h3><i class="bi bi-clipboard2-pulse"></i> Évaluation du stagiaire</h3>
+    <div *ngIf="evaluation?.date_evaluation" class="document-date">
+ 
+      Déposée le {{ evaluation.date_evaluation | date:'dd/MM/yyyy' }}
+    </div>
+  </div>
+   <div class="document-body">
+  <!-- 1️⃣ Stage pas encore terminé -->
+  <div *ngIf="stage.statut_stage !== 'Terminé'" class="state-message">
+    <i class="bi bi-info-circle"></i>
+    <i class="no-document fa-solid fa-info-circle"></i> L'évaluation sera disponible une fois le stage terminé
+  </div>
+
+  <!-- 2️⃣ Stage terminé -->
+  <div *ngIf="stage.statut_stage === 'Terminé'">
+    <!-- Erreur -->
+    <div *ngIf="evaluationError" class="error-message">
+      <i class="bi bi-exclamation-triangle"></i>
+      {{ evaluationError }}
+    </div>
+
+    <!-- Évaluation existante -->
+    <div *ngIf="evaluation && evaluation.date_evaluation; else noEvaluation">
+      <button class="toggle-evaluation-btn" 
+              (click)="showEvaluationView = !showEvaluationView">
+        <i class="bi" [class.bi-eye]="!showEvaluationView" [class.bi-eye-slash]="showEvaluationView"></i>
+        <i class="fa-solid fa-star"></i> 
+        {{ showEvaluationView ? 'Masquer' : 'Consulter' }} l'évaluation
+      </button>
+
+      <div *ngIf="showEvaluationView" class="evaluation-details">
+        <div class="criteria-grid">
+          <div class="criterion">
+            <label>Comportement</label>
+            <div class="rating">
+              <div class="stars" [style.--rating]="evaluation.comportement"></div>
+              <span class="score">{{ evaluation.comportement }}/5</span>
+            </div>
+          </div>
+          <div class="criterion">
+            <label>Travail d'équipe</label>
+            <div class="rating">
+              <div class="stars" [style.--rating]="evaluation.travail_equipe"></div>
+              <span class="score">{{ evaluation.travail_equipe }}/5</span>
+            </div>
+          </div>
+          <div class="criterion">
+            <label>Qualité du travail</label>
+            <div class="rating">
+              <div class="stars" [style.--rating]="evaluation.qualite_travail"></div>
+              <span class="score">{{ evaluation.qualite_travail }}/5</span>
+            </div>
+          </div>
+          <div class="criterion">
+            <label>Adaptabilité</label>
+            <div class="rating">
+              <div class="stars" [style.--rating]="evaluation.adaptable"></div>
+              <span class="score">{{ evaluation.adaptable }}/5</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="evaluation.commentaire" class="comment-box">
+          <h4><i class="bi bi-chat-square-text"></i> Commentaire</h4>
+          <p>{{ evaluation.commentaire }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3️⃣ Stage terminé mais pas d'évaluation -->
+    <ng-template #noEvaluation>
+      <div class="state-message">
+      
+        <i class="no-document fa-solid fa-info-circle"></i> Évaluation pas encore disponible
+      </div>
+    </ng-template>
+  </div>
+   </div>
+</div>
+
+</div>

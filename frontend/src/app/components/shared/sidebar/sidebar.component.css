@@ -1,0 +1,28 @@
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 16px;
+    background-color: #f1f1f1;
+    height: 100vh;
+
+  position: sticky;
+  top: 60px; /* Position sous la navbar */
+  overflow-y: auto; /* Permet le défilement si contenu trop long */
+
+  }
+  
+  .sidebar button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    padding: 10px;
+    cursor: pointer;
+    text-align: left;
+     
+  }
+  
+  .sidebar button:hover {
+    background-color: #ddd;
+  }
+  

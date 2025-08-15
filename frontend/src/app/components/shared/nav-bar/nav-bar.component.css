@@ -1,0 +1,242 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #303f9f;
+  color: white;
+  margin: 0;
+  padding: 12px 20px;
+  font-size: 18px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-left {
+  font-size: 28px;
+  font-weight: bold;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+  margin-left : 20px;
+}
+
+.brand-part1 {
+  color: #ffffff;
+}
+
+.brand-part2 {
+  color: #fd7e14; /* Jaune doux pour contraster */
+  margin-left: 4px;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  margin-right: 50px;
+}
+
+/* Styles existants pour le menu */
+.gear-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.dropdown {
+  width: 170px;
+  position: absolute;
+ 
+  top: 50px;
+  right: 10px;
+  background: white;
+  color: black;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.dropdown button {
+  background: none;
+  border: none;
+  padding: 10px 15px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+   font-size: 18px;
+}
+
+.dropdown button:hover {
+  background: #eee;
+}
+
+/* Styles pour les notifications */
+.notification-container {
+  position: relative;
+}
+
+.notification-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+}
+
+.notification-button i {
+  color: white;
+  font-size: 20px;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #f44336;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notifications-dropdown {
+  position: absolute;
+  right: 0;
+  top: 40px;
+  width: 350px;
+  max-height: 500px;
+  overflow-y: auto;
+  background: white;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  border-radius: 5px;
+  z-index: 1000;
+  color: #333;
+}
+
+.notifications-header {
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.notifications-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.notifications-list {
+  padding: 0;
+}
+
+.notification-item {
+  padding: 10px 15px;
+  border-bottom: 1px solid #f5f5f5;
+  cursor: pointer;
+}
+
+.notification-item.unread {
+  background-color: #f0f7ff;
+}
+
+.notification-item:hover {
+  background-color: #f9f9f9;
+}
+
+.notification-item h4 {
+  margin: 0 0 5px 0;
+  font-size: 0.9rem;
+}
+
+.notification-item p {
+  margin: 0 0 5px 0;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.notification-item small {
+  font-size: 0.7rem;
+  color: #999;
+}
+
+.loading, .empty {
+  padding: 15px;
+  text-align: center;
+  color: #666;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-login,
+.btn-signup {
+  padding: 8px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+}
+
+/* Login: Bouton avec bord blanc et fond transparent */
+.btn-login {
+  background-color: transparent;
+  color: white;
+  border: 1px solid white;
+}
+
+.btn-login:hover {
+  background-color: white;
+  color: #2e3a59;
+}
+
+/* Sign Up: bouton avec fond jaune (comme .brand-part2) */
+.btn-signup {
+  background-color: #fd7e14;
+  color: #2e3a59;
+  border: 1px solid transparent;
+}
+
+.btn-signup:hover {
+  background-color: #fd7e14;
+}
+
+
+
+
+
+.navbar-center {
+  flex: 1;
+  justify-content: center;
+  gap: 30px;
+}
+
+.navbar-center a {
+  text-decoration: none;
+  font-weight: 500;
+  color: #ffffff;
+  padding: 5px 10px;
+  transition: color 0.2s;
+}
+
+.navbar-center a:hover,
+.navbar-center a.active {
+  color: #3f51b5;
+  border-bottom: 2px solid #3f51b5;
+}
+
+.navbar-center,
+.navbar-right {
+  display: flex;
+  align-items: center;
+}

@@ -1,0 +1,42 @@
+
+<div class="register-container">
+  <h2>Connexion</h2>
+  <form (submit)="onSubmit(); $event.preventDefault()">
+    <label for="email">Email</label>
+    <input
+      id="email"
+      type="email"
+      placeholder="you@example.com"
+      [(ngModel)]="credentials.email"
+      name="email"
+      required
+    />
+
+    <label for="password">Password</label>
+    <input
+      id="password"
+      type="password"
+      placeholder="Mot de passe"
+      [(ngModel)]="credentials.mot_de_pass"
+      name="mot_de_pass"
+      required
+    />
+
+    <div class="link-right">
+      <a routerLink="/forgot-password">Mot de passe oublié?</a>
+    </div>
+
+    <button type="submit">Login</button>
+
+    
+    <p *ngIf="message" [ngClass]="{'message-success': messageType === 'success', 'message-error': messageType === 'error'}">
+  {{ message }}
+</p>
+  </form>
+
+  <div class="link-center">
+    <a routerLink="/signup">Vous n’avez pas encore un compte ? Créer un compte</a>
+  </div>
+</div>
+
+<router-outlet></router-outlet>

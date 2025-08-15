@@ -1,0 +1,37 @@
+<div class="notifications-container">
+  <h2>Mes Notifications</h2>
+
+  <div *ngIf="isLoading" class="loading">
+    Chargement en cours...
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!isLoading && notifications.length === 0" class="empty-state">
+    Aucune nouvelle notification
+  </div>
+
+  <div class="notifications-list">
+    <div *ngFor="let notif of notifications" 
+         class="notification-item" 
+         [class.read]="notif.est_lu"
+         (click)="markAsRead(notif)">
+
+      <div class="notification-header">
+        <span class="notification-type">{{ notif.type }}</span>
+        <span class="notification-date">{{ formatDate(notif.date_creation) }}</span>
+      </div>
+
+      <h3 class="notification-title">{{ notif.titre }}</h3>
+      <p class="notification-message">{{ notif.message }}</p>
+
+      <a *ngIf="notif.lien_action" 
+         [routerLink]="notif.lien_action" 
+         class="action-link">
+        Voir plus
+      </a>
+    </div>
+  </div>
+</div>

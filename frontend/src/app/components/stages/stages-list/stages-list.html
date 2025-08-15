@@ -1,0 +1,98 @@
+<br><br><br><br><br>
+<div class="stages-dashboard">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+
+    
+    <!-- Boutons de navigation pour non-candidats -->
+    <div *ngIf="userRole != 'candidat'" class="view-toggle">
+      <button class="view-btn active" [class.active]="!isHistoriqueMode" (click)="loadActiveStages()">
+        <i class="fas fa-running"></i> Stages Actifs
+      </button>
+      <button class="view-btn" [class.active]="isHistoriqueMode" (click)="loadHistoriqueStages()">
+        <i class="fas fa-archive"></i> Historique
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtre pour candidats -->
+  <div *ngIf="userRole === 'candidat'" class="filter-section">
+    <div class="filter-control">
+      <label for="statutFilter"><i class="fas fa-filter"></i> Statut :</label>
+      <select id="statutFilter" [(ngModel)]="statutFilter" (change)="loadMesStages()">
+        <option *ngFor="let option of statutOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Messages d'état -->
+  <div *ngIf="errorMessage" class="alert-message error">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!loading && stages.length === 0" class="alert-message info">
+    <i class="fas fa-info-circle"></i> Aucun stage trouvé
+  </div>
+
+  <!-- Chargement -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement en cours...</p>
+  </div>
+
+  <!-- Grille des stages -->
+  <div *ngIf="!loading && stages.length > 0" class="stages-grid">
+    <div *ngFor="let stage of stages" class="stage-card">
+      <div class="card-header">
+        <h3 class="stage-title">{{ stage.sujet_stage }}</h3>
+        <span class="stage-badge" [ngClass]="getBadgeClass(stage.statut_stage)">
+          {{ stage.statut_stage }}
+        </span>
+      </div>
+
+      <div class="card-body">
+        <div class="info-row">
+          <span class="info-label"><i class="far fa-calendar-alt"></i> Période :</span>
+          <span class="info-value">{{ stage.date_debut | date:'dd/MM/yyyy' }} - {{ stage.date_fin | date:'dd/MM/yyyy' }}</span>
+        </div>
+
+        <div class="info-section">
+          <h4><i class="fas fa-user-graduate"></i> Stagiaire</h4>
+          <div class="info-row">
+            <span class="info-label">Nom :</span>
+            <span class="info-value">{{ stage.Stagiaire?.prenom }} {{ stage.Stagiaire?.nom }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Email :</span>
+            <span class="info-value">{{ stage.Stagiaire?.email || 'Non spécifié' }}</span>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h4><i class="fas fa-user-tie"></i> Encadrant</h4>
+          <div *ngIf="stage.Encadrant; else noSupervisor">
+            <div class="info-row">
+              <span class="info-label">Nom :</span>
+              <span class="info-value">{{ stage.Encadrant.prenom }} {{ stage.Encadrant.nom }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Email :</span>
+              <span class="info-value">{{ stage.Encadrant.email }}</span>
+            </div>
+          </div>
+          <ng-template #noSupervisor>
+            <p class="no-data"><i class="fas fa-exclamation-triangle"></i> Non assigné</p>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button class="details-btn" (click)="showDetails(stage.id)">
+          <i class="fas fa-eye"></i> Détails complets
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

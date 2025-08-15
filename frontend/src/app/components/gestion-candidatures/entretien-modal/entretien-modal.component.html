@@ -1,0 +1,29 @@
+<!-- entretien-modal.component.html -->
+<div class="modal fade" #modal tabindex="-1" *ngIf="isOpen">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ isEdit ? 'Modifier' : 'Planifier' }} entretien</h5>
+        <button type="button" class="btn-close" (click)="close()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="entretienForm">
+          <div class="mb-3">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-control" formControlName="date_entretien">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Heure</label>
+            <input type="time" class="form-control" formControlName="heure_entretien">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="close()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="submit()">
+          {{ isEdit ? 'Modifier' : 'Planifier' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

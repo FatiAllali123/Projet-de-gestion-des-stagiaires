@@ -1,0 +1,413 @@
+.container {
+  max-width: 900px;
+  margin: 80px auto 40px;
+  padding: 0 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fff;
+  color: #303f9f;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(48, 63, 159, 0.2);
+}
+
+h2 {
+  text-align: center;
+  color: #303f9f;
+  margin-bottom: 30px;
+  font-weight: 700;
+}
+
+/* --- Filtre --- */
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 25px;
+  justify-content: center;
+}
+
+.filter label {
+  font-weight: 600;
+  color: #303f9f;
+}
+
+.filter select {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1.5px solid #666;
+  border-radius: 4px;
+  color: #303f9f;
+  min-width: 160px;
+  outline-offset: 2px;
+  transition: border-color 0.3s ease;
+}
+
+.filter select:focus {
+  border-color: #fd7e14;
+}
+
+.filter button {
+  background-color: #fd7e14;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.filter button:hover {
+  background-color: #e56a00;
+}
+
+/* --- Message d’erreur --- */
+.error {
+  color: #f44336;
+  text-align: center;
+  margin: 15px 0;
+  font-weight: 600;
+}
+
+/* --- Cartes de candidatures --- */
+.candidature-card {
+  border: 1.5px solid #303f9f;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  color: #303f9f;
+  margin-bottom: 25px;
+  box-shadow: 0 2px 6px rgba(48, 63, 159, 0.15);
+  transition: box-shadow 0.3s ease;
+}
+
+.candidature-card:hover {
+  box-shadow: 0 4px 15px rgba(253, 126, 20, 0.4);
+  border-color: #fd7e14;
+}
+
+.candidature-card h3 {
+  margin-top: 0;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.candidature-card p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.candidature-card a {
+  text-decoration: none;
+  color: #303f9f;
+  font-weight: 600;
+  margin-right: 8px;
+  transition: color 0.3s;
+}
+
+.candidature-card a:hover {
+  color: #fd7e14;
+}
+
+
+
+
+
+
+.btn-annuler {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-annuler:hover {
+  background-color: #b02a37;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Styles pour les propositions */
+.propositions-section {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tabs button {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-weight: bold;
+  color: #666;
+}
+
+.tabs button.active {
+  border-bottom-color: #303f9f;
+  color: #303f9f;
+}
+
+.proposition-card {
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: white;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.proposition-card:hover {
+  border-color: #303f9f;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.proposition-card.selected {
+  border-left: 4px solid #303f9f;
+  background-color: #f0f4ff;
+}
+
+.proposition-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.proposition-header h4 {
+  margin: 0;
+  color: #303f9f;
+}
+
+.badge {
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.badge.pending {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.badge.accepted {
+  background-color: #28a745;
+  color: white;
+}
+
+.badge.refused {
+  background-color: #dc3545;
+  color: white;
+}
+
+.proposition-dates {
+  margin: 5px 0;
+  font-size: 15px;
+}
+
+.proposition-comment {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.proposition-form {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-accept {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-refuse {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-propositions {
+  background-color: #303f9f;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 10px 0;
+  display: block;
+}
+
+.btn-close-section {
+  margin-top: 20px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.no-propositions {
+  padding: 15px;
+  text-align: center;
+  color: #666;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+
+
+.btn-propositions {
+  background-color: #303f9f;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 10px 0;
+  display: inline-block;
+  transition: background-color 0.3s;
+}
+
+.btn-propositions:hover {
+  background-color: #1a237e;
+}
+
+
+/* Styles pour le modal */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  border-radius: 8px;
+  overflow: auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #303f9f;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.modal-body {
+  padding: 20px;
+}
+.proposition-status > div {
+  padding: 8px 12px;
+  margin: 10px 0;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.proposition-status > div i {
+  margin-right: 8px;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-accepted {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-refused {
+  background-color: #f8d7da;
+  color: #721c24;
+}

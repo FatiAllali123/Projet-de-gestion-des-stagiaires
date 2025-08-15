@@ -1,0 +1,67 @@
+<router-outlet></router-outlet>
+<nav class="navbar">
+   <div class="navbar-left">
+    <span class="brand-part1">Vala</span><span class="brand-part2">Stage</span>
+  </div>
+
+
+
+    <div class="navbar-center">
+    <a routerLink="/Home" routerLinkActive="active">Accueil</a>
+    <a routerLink="/Offres" routerLinkActive="active">Offres</a>
+  </div>
+
+  
+  <div class="navbar-right">
+    <!-- Bouton Notifications -->
+    <div *ngIf="isAuthenticated == true" class="notification-container">
+      <button class="notification-button" (click)="toggleNotifications()">
+        <i class="fas fa-bell"></i>
+        <span *ngIf="unreadCount > 0" class="notification-badge">{{ unreadCount }}</span>
+      </button>
+
+      <!-- Dropdown Notifications -->
+      <div *ngIf="notificationsOpen" class="notifications-dropdown">
+        <div class="notifications-header">
+          <h3>Notifications ({{ unreadCount }})</h3>
+        </div>
+
+        <div *ngIf="loading" class="loading">Chargement...</div>
+
+        <div class="notifications-list">
+          <div *ngFor="let notif of notifications" 
+               class="notification-item"
+               [class.unread]="!notif.est_lu"
+               (click)="handleNotificationClick(notif)">
+            <h4>{{ notif.titre }}</h4>
+            <p>{{ notif.message }}</p>
+            <small>{{ notif.date_creation | date:'short' }}</small>
+          </div>
+
+          <div *ngIf="!loading && notifications.length === 0" class="empty">
+            Aucune nouvelle notification
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bouton Settings -->
+    <button *ngIf="isAuthenticated === true" class="gear-button" (click)="toggleMenu()">⚙</button>
+    
+    <div class="dropdown" *ngIf="menuOpen">
+  <button (click)="goToDashboard()">
+    <i class="fas fa-tachometer-alt"></i> Dashboard
+  </button>
+  <button (click)="logout()">
+    <i class="fas fa-sign-out-alt"></i> Log Out
+  </button>
+</div>
+<div *ngIf="isAuthenticated === false" class="auth-buttons">
+  <button class="btn-login" (click)="goToLogin()">Login</button>
+  <button class="btn-signup" (click)="goToSignup()">Sign Up</button>
+</div>
+
+
+  </div>
+
+</nav>

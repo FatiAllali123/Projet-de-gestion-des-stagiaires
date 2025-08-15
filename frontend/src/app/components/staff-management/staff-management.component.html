@@ -1,0 +1,140 @@
+<br><br><br>
+
+<div class="staff-management-container">
+    <h2 class="page-title">Gestion du personnel</h2><br>
+
+  <div class="header-section">
+  
+    
+  <br>
+      <div class="messages">
+
+     
+     <div *ngIf="success" class="success-message">
+     <small>{{ success }}</small>
+     <button (click)="success= null" class="close">×</button>
+    </div>
+
+     <div *ngIf="error" class="error-message">
+     <small>{{ error }}</small>
+     <button (click)="error = null" class="close">×</button>
+    </div>
+
+    </div>
+<div class="filter-control">
+  <label for="roleFilter">Filtrer par rôle :</label>
+  <select id="roleFilter" [(ngModel)]="selectedRole" (change)="onRoleFilterChange()">
+    <option value="">Tous les rôles</option>
+    <option value="rh">RH</option>
+    <option value="encadrant">Encadrant</option>
+  </select>
+</div>
+
+    <button class="add-staff-btn" (click)="toggleForm()">
+      <i class="fas fa-user-plus"></i> Ajouter un nouveau membre
+    </button>
+
+    
+  </div>
+
+  <div *ngIf="showCreateForm" class="create-form-container">
+  <form class="staff-form" (ngSubmit)="createAccount()" [formGroup]="staffForm">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="nom">Nom</label>
+        <input type="text" id="nom" formControlName="nom" placeholder="Entrez le nom" />
+        <div *ngIf="staffForm.get('nom')?.invalid && staffForm.get('nom')?.touched" class="error-text">
+          Le nom est obligatoire
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="prenom">Prénom</label>
+        <input type="text" id="prenom" formControlName="prenom" placeholder="Entrez le prénom" />
+        <div *ngIf="staffForm.get('prenom')?.invalid && staffForm.get('prenom')?.touched" class="error-text">
+          Le prénom est obligatoire
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" formControlName="email" placeholder="Entrez l'email" />
+        <div *ngIf="staffForm.get('email')?.invalid && staffForm.get('email')?.touched" class="error-text">
+          <span *ngIf="staffForm.get('email')?.errors?.['required']">L'email est obligatoire</span>
+          <span *ngIf="staffForm.get('email')?.errors?.['email']">Veuillez entrer un email valide</span>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="role">Rôle</label>
+        <select id="role" formControlName="role" class="role-select">
+          <option value="rh">RH</option>
+          <option value="encadrant">Encadrant</option>
+        </select>
+      </div>
+      
+      <div *ngIf="staffForm.get('role')?.value === 'encadrant'" class="form-group">
+        <label for="specialite">Spécialité</label>
+        <input type="text" id="specialite" formControlName="specialite" placeholder="Spécialité encadrant" />
+        <div *ngIf="staffForm.get('specialite')?.invalid && staffForm.get('specialite')?.touched" class="error-text">
+          La spécialité est obligatoire pour les encadrants
+        </div>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button type="submit" class="submit-btn" [disabled]="staffForm.invalid">
+        <i class="fas fa-save"></i> Créer le compte
+      </button>
+      <button type="button" class="cancel-btn" (click)="cancelForm()">
+        <i class="fas fa-times"></i> Annuler
+      </button>
+    </div>
+  </form>
+</div>
+
+  <div class="staff-table-container">
+    <table class="staff-table">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Spécialité</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of staffList">
+          <td>{{ user.nom }}</td>
+          <td>{{ user.prenom }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span class="role-badge" [ngClass]="{'rh-role': user.role === 'rh', 'encadrant-role': user.role === 'encadrant'}">
+              {{ user.role }}
+            </span>
+          </td>
+          <td>{{ user.specialite_encadrant || '-' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="{'active': user.statut_compte === 'actif', 'inactive': user.statut_compte === 'inactif'}">
+              {{ user.statut_compte }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <button class="action-btn enable-btn" (click)="manage(user.id, 'enable')" [disabled]="user.statut_compte === 'actif'">
+              <i class="fas fa-check-circle"></i> Activer
+            </button>
+            <button class="action-btn disable-btn" (click)="manage(user.id, 'disable')" [disabled]="user.statut_compte === 'inactif'">
+              <i class="fas fa-ban"></i> Désactiver
+            </button>
+            <button class="action-btn delete-btn" (click)="manage(user.id, 'delete')">
+              <i class="fas fa-trash-alt"></i> Supprimer
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

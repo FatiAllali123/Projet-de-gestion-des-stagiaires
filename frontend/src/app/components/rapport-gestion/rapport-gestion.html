@@ -1,0 +1,62 @@
+<div class="container">
+  <br><br><br><br>
+  <h2>Rapports de stage à traiter</h2>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && rapports.length === 0" class="alert alert-info">
+    Aucun rapport à traiter pour le moment.
+  </div>
+
+  <div *ngFor="let rapport of rapports" class="rapport-card">
+    <div class="rapport-header">
+      <h4>{{ rapport.Stage?.sujet_stage }}</h4>
+      <span class="badge attente">À traiter</span>
+    </div>
+
+      <div class="rapport-body">
+      <div class="rapport-infos">
+        <p><strong>Stagiaire:</strong> {{ rapport.Stage?.Stagiaire?.prenom }} {{ rapport.Stage?.Stagiaire?.nom }}</p>
+        <p><strong>Déposé le:</strong> {{ rapport.date_depot | date:'dd/MM/yyyy' }}</p>
+      </div>
+      
+      <div class="rapport-buttons">
+        <a [href]="'http://localhost:3000/' + rapport.lien" target="_blank" class="btn btn-view">
+          <i class="bi bi-eye"></i> Voir le rapport
+        </a>
+
+        <!-- Bouton principal "Traiter" -->
+        <button class="btn-traiter" 
+                [class.active]="rapport.showActions"
+                (click)="rapport.showActions = !rapport.showActions">
+          <span class="btn-traiter-text">Traiter le rapport</span>
+          <span class="btn-traiter-icon">
+            <i class="bi" [class.bi-chevron-down]="!rapport.showActions" [class.bi-chevron-up]="rapport.showActions"></i>
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Actions visibles seulement après clic -->
+    <div class="rapport-actions" *ngIf="rapport.showActions">
+      <textarea [(ngModel)]="rapport.commentaire" placeholder="Commentaire (optionnel)"></textarea>
+      
+      <div class="buttons">
+        <button class="btn btn-success" 
+                [disabled]="processing"
+                (click)="traiterRapport(rapport.id, 'accepter')">
+          <i class="bi bi-check-circle"></i> Accepter
+        </button>
+        <button class="btn btn-danger"
+                [disabled]="processing"
+                (click)="traiterRapport(rapport.id, 'refuser')">
+          <i class="bi bi-x-circle"></i> Refuser
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

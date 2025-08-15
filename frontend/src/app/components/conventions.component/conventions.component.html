@@ -1,0 +1,132 @@
+ <!--Conventions-->
+<!--Rh-->
+<div class="conventions-section" *ngIf="userRole === 'rh'">
+  <div class="document-header">
+    <h3>Convention de stage Rh</h3>
+    <button class="upload-square-btn" (click)="triggerFileUpload()" title="Ajouter une convention">
+      <i class="upload-icon">⭳</i>
+    </button>
+    
+</div>
+  
+  <!-- Section d'upload compacte -->
+  <div class="upload-section-compact">
+
+    <input #fileInput 
+           type="file" 
+           id="conventionUpload"
+           (change)="onFileSelected($event)"
+           accept=".pdf,.doc,.docx,.jpg,.png"
+           style="display: none;">
+    
+    <!-- Zone d'affichage du fichier sélectionné (compacte) -->
+    <div *ngIf="selectedFile" class="file-preview">
+      <div class="file-info">
+        <i class="file-icon">📎</i>
+        <span class="file-name">{{selectedFile.name}}</span>
+        <span class="file-size">({{(selectedFile.size / 1024).toFixed(0)}} KB)</span>
+      </div>
+      <div class="file-actions">
+        <button class="action-btn confirm-btn" 
+                (click)="confirmUpload()"
+                [disabled]="uploadingConvention">
+          <i class="action-icon">✓</i>
+        </button>
+        <button class="action-btn cancel-btn" 
+                (click)="cancelUpload()"
+                [disabled]="uploadingConvention">
+          <i class="action-icon">✕</i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Affichage de la convention signée uniquement -->
+<div class="signed-convention-section">
+  <div *ngIf="getSignedConvention(); let signedConv" class="convention-compact">
+    <div class="rapport-header">
+      <div class="icon">
+        <i class="fas fa-check" style="color: green;"></i>
+      </div>
+      <div class="convention-info">
+        <span>Convention signée</span>
+        <span>Déposé le {{ formatDate(signedConv.date_depot) }}</span>
+      </div>
+      <a *ngIf="signedConv.lien" 
+         [href]="'http://localhost:3000/' + signedConv.lien" 
+         target="_blank" 
+         class="view-btn">
+        <i class="bi bi-eye"></i> Voir
+      </a>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Bouton pour afficher les autres conventions -->
+  <div class="other-conventions-toggle">
+    <button class="toggle-btn" (click)="toggleOtherConventions()">
+      <i class="toggle-icon">📋</i>
+      <span>Convention à signer </span>
+      <i class="arrow-icon" [class.rotated]="showOtherConventions">▼</i>
+    </button>
+  </div>
+
+<div *ngIf="showOtherConventions" class="other-conventions-list">
+  <div *ngFor="let conv of getOtherConventions()" class="convention-compact">
+    <div class="convention-summary">
+      
+      <span class="badge" [ngClass]="{
+        'bg-success':  conv.statut === 'accepté',
+        'bg-danger': conv.statut === 'refusé',
+        'bg-warning': conv.statut === 'déposé'
+      }">
+        {{ conv.statut || 'en attente' }}
+      </span>
+
+      <span class="date-info">Déposé: {{ formatDate(conv.date_depot) }}</span>
+
+      <span *ngIf="conv.TraitementDocuments?.length && conv.statut !== 'déposé'" 
+            class="date-info">
+        Traité: {{ formatDate(conv.TraitementDocuments[0].date_traitement) }}
+      </span>
+
+    
+      <!-- Boutons Actions -->
+    <div class="action-buttons">
+  <ng-container *ngIf="conv.statut === 'déposé'; else traite">
+    <button (click)="traiterConvention(conv.id, 'valider')" class="btn btn-validate">Valider</button>
+    <button (click)="traiterConvention(conv.id, 'refuser')" class="btn btn-refuse">Refuser</button>
+  </ng-container>
+  
+  <ng-template #traite>
+    <button class="btn btn-info" (click)="showCommentaire(getCommentaireTraite(conv)|| 'Aucun commentaire')">
+      Voir commentaire
+    </button>
+  </ng-template>
+</div>
+
+       <a *ngIf="conv.lien" 
+         [href]="'http://localhost:3000/' + conv.lien" 
+         target="_blank" 
+         class="view-btn">
+        <i class="view-icon">voir</i>
+      </a>
+        
+
+    </div>
+  </div>
+
+  <div *ngIf="getOtherConventions().length === 0" class="state-message">
+   <i class="no-document fa-solid fa-info-circle"></i> Aucune autre convention disponible
+  </div>
+</div>
+
+</div>
+
+
+
+
+
+
+<!--pour stagiare-->

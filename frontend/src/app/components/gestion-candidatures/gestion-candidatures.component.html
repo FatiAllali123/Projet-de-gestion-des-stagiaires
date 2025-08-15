@@ -1,0 +1,280 @@
+<br> <br><br> <br><br><br>
+   <button class="btn-back" (click)="goBack()">
+    ← Retour à la liste
+  </button>
+
+
+
+
+<div class="container mt-4">
+    <!-- Filtre -->
+  <div class="filter-container"  >
+    <label class="statusFilter">Filtrer par statut :</label>
+    <select [(ngModel)]="filterStatut" (change)="onFilterChange()">
+      <option value="">Tous</option>
+      <option value="'En cours d\'execution'">En cours</option>
+      <option value="Presélectionnée">Presélectionnée</option>
+      <option value="Entretien planifié">Entretien planifié</option>
+      <option value="Acceptée">Acceptée</option>
+      <option value="Refusée">Refusée</option>
+    </select>
+  </div>
+
+<!-- Ajoutez ceci en haut de votre template, après le filtre par statut -->
+<div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+  {{ errorMessage }}
+  <button type="button" class="btn-close" (click)="errorMessage = null" aria-label="Close"></button>
+</div>
+  <!-- Liste des candidatures -->
+  <div class="list-group">
+    <div *ngFor="let candidature of candidatures" class="list-group-item mb-3 p-3">
+     <!-- En-tête -->
+<div class="candidature-header">
+  <!-- Partie gauche - Nom, email et date -->
+  <div class="candidat-info">
+    <div class="name-email-container">
+      <h5 class="candidat-name">{{ candidature.Candidat.prenom }} {{ candidature.Candidat.nom }}</h5>
+      <div class="candidat-email">{{ candidature.Candidat.email }}</div>
+        <div class="detail-item">
+        <i class="fas fa-graduation-cap"></i>
+        <span>{{ candidature.Candidat.niveau_etudes || 'Niveau non spécifié' }}</span>
+      </div>
+      <div class="detail-item">
+        <i class="fas fa-school"></i>
+        <span>{{ candidature.Candidat.etablissement || 'Établissement non renseigné' }}</span>
+      </div> 
+    </div>
+   
+    <small class="postulation-date">Postulé le {{ candidature.date_creation | date:'dd/MM/yyyy' }}</small>
+  </div>
+
+  <!-- Partie droite - Statuts -->
+  <div class="status-column">
+    <div class="status-container">
+      <span class="status-badge main-status" [ngClass]="{
+        'status-en-cours': candidature.statut_candidature === 'En cours d\'execution',
+        'status-preselection': candidature.statut_candidature === 'Presélectionnée',
+        'status-entretien': candidature.statut_candidature === 'Entretien planifié',
+        'status-acceptee': candidature.statut_candidature === 'Acceptée',
+        'status-refusee': candidature.statut_candidature === 'Refusée'
+      }" >
+      <div *ngIf="candidature.statut_candidature ==='En cours d\'execution'">En cours de traitemnt</div>
+      <div *ngIf="candidature.statut_candidature !=='En cours d\'execution'">{{ candidature.statut_candidature }}</div>
+      </span>
+
+      <span *ngIf="candidature.Entretiens?.length > 0" class="status-badge interview-status" [ngClass]="{
+        'status-interview-planned': candidature.Entretiens[0].statut === 'Planifié',
+        'status-interview-cancelled': candidature.Entretiens[0].statut === 'Annulé',
+        'status-interview-done': candidature.Entretiens[0].statut === 'Passé'
+      }">
+        Entretien {{ candidature.Entretiens[0].statut }}
+        <div>Date: {{ candidature.Entretiens[0].date_entretien | date:'dd/MM/yyyy' }} , Heure : {{ candidature.Entretiens[0].heure_entretien  }}</div>
+ 
+      </span>
+    </div>
+  </div>
+</div>
+
+      <!-- Documents -->
+ <!-- Documents et Actions -->
+<div class="documents-actions-container">
+  <!-- Documents à gauche -->
+  <div class="documents-section">
+    <div class="documents-title">Documents :</div>
+    <div class="documents-buttons">
+      <a    href="http://localhost:3000/{{candidature.cv }}"   target="_blank" class="document-btn cv-btn">
+        <i class="fas fa-file-pdf"></i> Voir CV
+      </a>
+      <a   href="http://localhost:3000/{{candidature.lettre_motivation }}"target="_blank" class="document-btn lettre-btn">
+        <i class="fas fa-file-alt"></i> Voir lettre
+      </a>
+    </div>
+  </div>
+
+
+
+
+  <!-- Actions à droite -->
+  <div class="actions-section">
+    <div class="actions-buttons">
+      <button *ngFor="let action of getActions(candidature)" 
+        class="action-btn"
+         [disabled]="loadingAction === candidature.id || isEntretienPast(candidature, action)"
+        [ngClass]="{
+          'btn-accept': action === 'Accepter' || action === 'Entretien est passée' || action === 'Creer Stage',
+          'btn-reject': action === 'Refuser',
+          'btn-preselect': action === 'Presélectionner' || action === 'Planifier entretien' || action === 'Modifier entretien',
+          'btn-cancel': action === 'Annuler entretien'
+        }"
+        (click)="handleCandidatureAction({ action, candidature })">
+  <ng-container *ngIf="loadingAction === candidature.id">
+    ⏳ Traitement...
+  </ng-container>
+  <ng-container *ngIf="loadingAction !== candidature.id">
+    {{ action }}
+  </ng-container>
+</button>
+
+    </div>
+  </div>
+</div>
+<!-- Message de période acceptée - Nouvelle section en bas de la carte -->
+<div *ngIf="hasAcceptedProposition(candidature)" class="accepted-period-container">
+  <div class="accepted-period-badge">
+    <i class="fas fa-calendar-check"></i>
+    <span>Période de stage acceptée :</span>
+    <strong>
+      {{ getAcceptedPeriod(candidature) }}
+    </strong>
+  </div>
+</div>
+
+    
+    </div>
+  </div>
+</div>
+
+<!-- Modal entretien -->
+<app-entretien-modal 
+  #entretienModal 
+  [candidature]="this.selectedCandidature"
+  (onSubmit)="handlePlanifierEntretien($event)">
+</app-entretien-modal>
+
+
+<!-- Ajoutez ceci à la fin de votre template -->
+<div class="modal-backdrop" *ngIf="showStageModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5>Créer un nouveau stage</h5>
+      <button type="button" class="btn-close" (click)="closeStageModal()"></button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="errorMessage" class="alert alert-danger mb-3">
+        {{ errorMessage }}
+      </div>
+      <!-- Ajoutez #stageForm="ngForm" et la validation -->
+      <form #stageForm="ngForm" (ngSubmit)="submitStageForm()">
+        <div class="mb-3">
+          <label class="form-label">Sujet du stage</label>
+          <input type="text" class="form-control" [(ngModel)]="stageFormData.sujet_stage" 
+                 name="sujet" required #sujet="ngModel">
+          <!-- Message d'erreur -->
+          <div *ngIf="sujet.invalid && (sujet.dirty || sujet.touched)" class="text-danger">
+            Le sujet du stage est obligatoire
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Date de début</label>
+          <input type="date" class="form-control" [(ngModel)]="stageFormData.date_debut" 
+                 name="dateDebut" required #dateDebut="ngModel">
+          <!-- Message d'erreur -->
+          <div *ngIf="dateDebut.invalid && (dateDebut.dirty || dateDebut.touched)" class="text-danger">
+            La date de début est obligatoire
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Date de fin</label>
+          <input type="date" class="form-control" [(ngModel)]="stageFormData.date_fin" 
+                 name="dateFin" required #dateFin="ngModel">
+          <!-- Message d'erreur -->
+          <div *ngIf="dateFin.invalid && (dateFin.dirty || dateFin.touched)" class="text-danger">
+            La date de fin est obligatoire
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeStageModal()">Annuler</button>
+          <!-- Désactivez le bouton si le formulaire est invalide -->
+          <button type="submit" class="btn btn-primary" [disabled]="stageForm.invalid">Créer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+<!-- Modal pour proposer une période -->
+<div class="modal-backdrop" *ngIf="showPropositionModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h5>Proposer une période de stage</h5>
+      <button type="button" class="btn-close" (click)="closePropositionModal()"></button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="errorMessage" class="alert alert-danger mb-3">
+        {{ errorMessage }}
+      </div>
+      <form (ngSubmit)="submitPropositionForm()">
+        <div class="mb-3">
+          <label class="form-label">Date de début proposée</label>
+          <input type="date" class="form-control" 
+                 [(ngModel)]="propositionFormData.date_debut_proposee" 
+                 name="dateDebutProposee" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Date de fin proposée</label>
+          <input type="date" class="form-control" 
+                 [(ngModel)]="propositionFormData.date_fin_proposee" 
+                 name="dateFinProposee" required>
+        </div>
+    
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closePropositionModal()">Annuler</button>
+          <button type="submit" class="btn btn-primary">Proposer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour afficher les propositions existantes -->
+<div class="modal-backdrop" *ngIf="showPropositionsList">
+  <div class="modal-content wide-modal">
+    <div class="modal-header">
+      <h5>Propositions de période pour {{selectedCandidatureForPropositions?.Candidat?.prenom}} {{selectedCandidatureForPropositions?.Candidat?.nom}}</h5>
+      <button type="button" class="btn-close" (click)="closePropositionsList()"></button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="propositions.length === 0" class="alert alert-info">
+        Aucune proposition n'a été faite pour cette candidature.
+      </div>
+      <table *ngIf="propositions.length > 0" class="table">
+        <thead>
+          <tr>
+            <th>Date début</th>
+            <th>Date fin</th>
+            <th>Statut</th>
+            <th>Date proposition</th>
+            <th>Date traitement</th>
+            <th>Commentaire</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let prop of propositions">
+            <td>{{ prop.date_debut_proposee | date:'dd/MM/yyyy' }}</td>
+            <td>{{ prop.date_fin_proposee | date:'dd/MM/yyyy' }}</td>
+            <td>
+              <span [ngClass]="{
+                'badge bg-warning': prop.statut === 'en attente',
+                'badge bg-success': prop.statut === 'acceptée',
+                'badge bg-danger': prop.statut === 'refusée'
+              }">
+                {{ prop.statut }}
+              </span>
+            </td>
+            <td>{{ prop.date_proposition | date:'dd/MM/yyyy' }}</td>
+            <td>{{ prop.date_traitement ? (prop.date_traitement | date:'dd/MM/yyyy') : '-' }}</td>
+            <td>{{ prop.commentaire || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="closePropositionsList()">Fermer</button>
+    </div>
+  </div>
+</div>

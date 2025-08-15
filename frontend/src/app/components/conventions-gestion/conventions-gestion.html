@@ -1,0 +1,391 @@
+<!-- conventions.component.html -->
+ <br><br><br><br><br>
+<div class="conventions-container">
+  <!-- En-tête commun -->
+  <div class="tabs">
+    <button 
+      [class.active]="activeTab === 'a-signer'"
+      (click)="activeTab = 'a-signer'">
+      {{ userRole === 'rh' ? 'Conventions à Traiter' : 'Conventions à Signer' }}
+    </button>
+    <button 
+      [class.active]="activeTab === 'signees'"
+      (click)="activeTab = 'signees'">
+      Conventions Signées
+    </button>
+  </div>
+
+
+  <!-- Message d'alerte -->
+  <div *ngIf="message" class="alert" [class.success]="messageType === 'success'" [class.error]="messageType === 'error'">
+    {{ message }}
+  </div>
+
+
+
+
+ <!-- Contenu pour le RH -->
+  <ng-container *ngIf="userRole === 'rh'">
+    <br><br>
+    <!-- Onglet Conventions à Traiter -->
+    <div *ngIf="activeTab === 'a-signer'" class="tab-content">
+      
+      
+      <div *ngIf="isLoading && conventionsRH.length === 0" class="loading">
+        Chargement en cours...
+      </div>
+
+     <div *ngIf="!isLoading && conventionsRH.length === 0" class="no-data">
+  <i class="fas fa-folder-open" style="color: #303f9f;"></i>
+  <span>Aucune convention à traiter pour le moment.</span>
+</div>
+
+      <table *ngIf="!isLoading && conventionsRH.length > 0" class="conventions-table">
+        <thead>
+          <tr>
+            <th>Candidat</th>
+            <th>Offre</th>
+            <th>Date dépôt</th>
+            <th>Document</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let convention of conventionsRH">
+            <td>{{ convention.Candidature?.Candidat?.nom }} {{ convention.Candidature?.Candidat?.prenom }}</td>
+            <td>{{ convention.Candidature?.Offre?.titre }}</td>
+            <td>{{ getFormattedDate(convention.date_depot) }}</td>
+            <td>
+              <a [href]="convention.lien" target="_blank" class="btn-view">
+                Voir
+              </a>
+            </td>
+            <td class="actions-cell">
+        
+              <div class="action-buttons">
+                <button class="btn-accept" (click)="traiterConventionRH(convention, 'valider')">
+                  Valider
+                </button>
+                <button class="btn-refuse" (click)="traiterConventionRH(convention, 'refuser')">
+                  Refuser
+                </button>
+         
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      
+    </div>
+<!-- Modal pour déposer la convention signée -->
+<div *ngIf="showSigneeModal" class="custom-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Déposer la convention signée</h3>
+      <button class="close-btn" (click)="closeSigneeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="isLoading" class="loading">
+        <div *ngIf="signeeUploadProgress > 0">
+          Progression : {{signeeUploadProgress}}%
+        </div>
+        <div *ngIf="signeeUploadProgress === 0">
+          Traitement en cours...
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading">
+        <div class="form-group">
+          <label>Pour la candidature: {{selectedConventionForSignee?.Candidature?.Offre?.titre}}</label>
+        </div>
+        
+        <div class="form-group">
+          <label>Fichier de convention signée (PDF/DOC/DOCX, max 5MB)</label>
+          <input 
+            type="file" 
+            (change)="onSigneeFileSelected($event)"
+            accept=".pdf,.doc,.docx"
+            class="form-control">
+          
+          <div *ngIf="signeeFile" class="file-info mt-2">
+            <span class="file-name">{{ signeeFile.name }}</span>
+            <span class="file-size">{{ signeeFile.size / 1024 / 1024 | number:'1.1-1' }} MB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeSigneeModal()">Annuler</button>
+      <button 
+        class="btn btn-primary" 
+        (click)="uploadSigneeConvention()"
+        [disabled]="!signeeFile || isLoading">
+        <span *ngIf="isLoading">Envoi en cours...</span>
+        <span *ngIf="!isLoading">Déposer et Valider</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Onglet Conventions Signées (RH) -->
+    <div *ngIf="activeTab === 'signees'" class="tab-content">
+   
+      <div *ngIf="isLoading && conventionsSignees.length === 0" class="loading">
+        Chargement en cours...
+      </div>
+
+     <div *ngIf="!isLoading && conventionsSignees.length === 0" class="no-data">
+  <i class="fas fa-file-signature" style="color: #303f9f;"></i>
+  <span>Aucune convention signée pour le moment.</span>
+</div>
+
+      <table *ngIf="!isLoading && conventionsSignees.length > 0" class="conventions-table">
+        <thead>
+          <tr>
+            <th>Stagiare</th>
+            <th>Sujet</th>
+            <th>Date signature</th>
+            <th>Période de stage</th>
+            <th>Document</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let convention of conventionsSignees">
+            <td>{{ convention.Stage?.Stagiaire?.email}}</td>
+            <td>{{ convention.Stage?.sujet_stage }}</td>
+            <td>{{ getFormattedDate(convention.date_depot) }}</td>
+            <td>
+              {{ getFormattedDate(convention.Stage?.date_debut) }} - 
+              {{ getFormattedDate(convention.Stage?.date_fin) }}
+            </td>
+            <td>
+              <a [href]="convention.lien" target="_blank" class="btn-view">
+                Voir
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <ng-container *ngIf="userRole === 'candidat'">
+  <!-- Onglet Conventions à Signer -->
+  <div *ngIf="activeTab === 'a-signer'" class="tab-content">
+   
+    
+    <div *ngIf="isLoading && candidaturesAttente.length === 0" class="loading">
+      Chargement en cours...
+    </div>
+
+    <div *ngIf="!isLoading && candidaturesAttente.length === 0" class="no-data">
+      Aucune candidature n'est en attente de convention pour le moment.
+    </div>
+
+   <div *ngIf="candidaturesAttente.length > 0" class="candidatures-list">
+      <div *ngFor="let candidature of candidaturesAttente" class="candidature-card">
+        <div class="candidature-info">
+          <h3>{{ candidature.Offre.titre }}</h3>
+          <p>
+            <strong>Période:</strong> 
+            {{ getFormattedDate(candidature.PropositionsDates[0].date_debut_proposee) }} - 
+            {{ getFormattedDate(candidature.PropositionsDates[0].date_fin_proposee) }}
+          </p>
+        </div>
+
+        <div class="upload-section">
+          <input 
+            type="file" 
+            id="file-upload-{{candidature.id}}"
+            (change)="onFileSelected($event, candidature.id)"
+            accept=".pdf,.doc,.docx"
+            style="display: none;">
+          
+          <label for="file-upload-{{candidature.id}}" class="btn-upload">
+            {{ selectedFiles[candidature.id] ? 'Changer le fichier' : 'Sélectionner Convention' }}
+          </label>
+          
+          <div *ngIf="selectedFiles[candidature.id]" class="file-info">
+            <span class="file-name">{{ selectedFiles[candidature.id].name }}</span>
+            <span class="file-size">{{ selectedFiles[candidature.id].size / 1024 / 1024 | number:'1.1-1' }} MB</span>
+          </div>
+          
+          <button 
+            *ngIf="selectedFiles[candidature.id]"
+            (click)="uploadConvention(candidature.id)"
+            class="btn-send"
+            [disabled]="isLoading || uploadProgress[candidature.id] > 0">
+            {{ uploadProgress[candidature.id] ? 'Envoi en cours...' : 'Envoyer Convention' }}
+          </button>
+
+          <div *ngIf="uploadProgress[candidature.id] > 0" class="progress-bar">
+            <div class="progress" [style.width]="uploadProgress[candidature.id] + '%'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+     <br><hr><br>
+     
+
+  <div *ngIf="isLoading && candidaturesAcceptees.length === 0" class="loading">
+    Chargement en cours...
+  </div>
+
+  <div *ngIf="!isLoading && candidaturesAcceptees.length === 0" class="no-data">
+    Vous n'avez aucune candidature acceptée pour le moment.
+  </div>
+
+  <div class="candidatures-list">
+  <div *ngFor="let candidature of candidaturesAcceptees" class="candidature-card">
+    
+    <!-- En-tête avec titre et badge statut -->
+    <div class="candidature-header">
+      <h3>{{ candidature.Offre.titre }}</h3>
+      <span class="badge" [ngClass]="{
+        'acceptée': candidature.statut_candidature === 'Acceptée',
+        'refusée': candidature.statut_candidature === 'Refusée',
+        'en-attente': candidature.statut_candidature === 'En attente'
+      }">{{ candidature.statut_candidature }}</span>
+    </div>
+    
+    <!-- Infos candidature avec FontAwesome -->
+    <div class="candidature-info">
+      <p><i class="fa-solid fa-hourglass-half"></i> <strong>Durée :</strong> {{ candidature.Offre.duree }}</p>
+      <p><i class="fa-solid fa-briefcase"></i> <strong>Type :</strong> {{ candidature.Offre.type_stage }}</p>
+      <p><i class="fa-solid fa-map-location-dot"></i> <strong>Mode :</strong> {{ candidature.Offre.mode_stage }}</p>
+      <p><i class="fa-solid fa-calendar-days"></i> <strong>Période :</strong> 
+         {{ getFormattedDate(candidature.PropositionsDates[0].date_debut_proposee) }} - 
+         {{ getFormattedDate(candidature.PropositionsDates[0].date_fin_proposee) }}</p>
+    </div>
+    
+    <!-- Bouton voir conventions -->
+    <button class="btn-view" (click)="openConventionsModal(candidature)">
+      <i class="fa-solid fa-file-lines"></i> Voir conventions
+    </button>
+    
+  </div>
+</div>
+
+
+  <!-- Modal personnalisé -->
+  <div *ngIf="showModal" class="custom-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Conventions pour {{ selectedCandidature?.Offre.titre }}</h3>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="isLoading" class="loading">
+          Chargement en cours...
+        </div>
+
+        <div *ngIf="!isLoading && conventions.length === 0" class="no-data">
+          Aucune convention trouvée pour cette candidature.
+        </div>
+
+        <table *ngIf="!isLoading && conventions.length > 0" class="conventions-table">
+          <thead>
+            <tr>
+              <th>Date dépôt</th>
+              <th>Statut</th>
+              <th>Date traitement</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let convention of conventions">
+              <td>{{ getFormattedDate(convention.date_depot) }}</td>
+              <td [class]="'statut-' + convention.statut">
+                {{ convention.statut }}
+              </td>
+              <td >
+                <div *ngIf="convention.statut !== 'déposé'" >
+              {{ convention.TraitementDocuments[0]?.date_traitement ? 
+                   getFormattedDate(convention.TraitementDocuments[0].date_traitement) : '-' }}
+                </div>
+               
+  
+              </td>
+              <td>
+                <a [href]="convention.lien" target="_blank" class="btn-view">
+                  Voir
+                </a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-close" (click)="closeModal()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  </div>
+
+
+
+ <!-- Onglet Conventions Signées -->
+  <div *ngIf="activeTab === 'signees'" class="tab-content">
+   
+    <br><br>
+    <div *ngIf="isLoading && conventionsSignees.length === 0" class="loading">
+      Chargement en cours...
+    </div>
+
+    <div *ngIf="!isLoading && conventionsSignees.length === 0" class="no-data">
+      Vous n'avez aucune convention signée pour le moment.
+    </div>
+
+    <table *ngIf="!isLoading && conventionsSignees.length > 0" class="conventions-table">
+      <thead>
+        <tr>
+          <th>Sujet</th>
+          <th>Date signature</th>
+          <th>Période de stage</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let convention of conventionsSignees">
+          <td>{{ convention.Stage?.sujet_stage}}</td>
+          <td>{{ getFormattedDate(convention.date_depot) }}</td>
+          <td>
+            {{ getFormattedDate(convention.Stage?.date_debut) }} - 
+            {{ getFormattedDate(convention.Stage?.date_fin) }}
+          </td>
+          <td>
+            <a [href]="convention.lien" target="_blank" class="btn-view">
+              Voir
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  </ng-container>
+
+  
+</div>

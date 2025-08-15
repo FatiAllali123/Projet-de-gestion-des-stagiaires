@@ -1,0 +1,47 @@
+
+<br><br><br>
+<div class="encadrants-container">
+  <div class="search-section">
+    <div class="search-box">
+      <input type="text" placeholder="Rechercher un encadrant..." 
+             [(ngModel)]="searchTerm" (keyup.enter)="loadEncadrants()">
+      <button class="search-btn" (click)="loadEncadrants()">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-indicator">
+    <div class="spinner"></div>
+    <p>Chargement des encadrants...</p>
+  </div>
+
+  <div *ngIf="!loading && encadrants.length === 0" class="no-results">
+    <i class="fas fa-user-tie"></i>
+    <p>Aucun encadrant trouvé</p>
+  </div>
+
+  <div class="encadrants-grid">
+    <div *ngFor="let encadrant of encadrants" class="encadrant-card">
+      <div class="card-header">
+        <div class="avatar">{{ encadrant.prenom.charAt(0) }}{{ encadrant.nom.charAt(0) }}</div>
+        <div class="titles">
+          <h3>{{ encadrant.prenom }} {{ encadrant.nom }}</h3>
+          <span class="specialite">{{ encadrant.specialite_encadrant }}</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="info-item"><i class="fas fa-envelope"></i> {{ encadrant.email }}</p>
+            <!--Nombre de stages en cours -->
+    <div class="stage-count">
+      <i class="fas fa-user-check"></i>
+      <span><strong>{{ encadrant.nbStagesEnCours }}</strong> stage(s) en cours encadré(s)</span>
+    </div>
+
+      </div>
+      <button class="view-stages-btn" (click)="selectEncadrant(encadrant.id); $event.stopPropagation()">
+        <i class="fas fa-list-ul"></i> Voir ses stages
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,252 @@
+/* ---------- Reset & Base ---------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: #f7f8fb;
+  color: #111111;
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 3rem auto;
+  padding: 0 16px;
+}
+
+/* ---------- Titre ---------- */
+.container h2 {
+  font-size: clamp(22px, 2.5vw, 28px);
+  font-weight: 700;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.container h2::after {
+  content: "";
+  display: block;
+  width: 72px;
+  height: 4px;
+  border-radius: 999px;
+  margin-top: 10px;
+  background: linear-gradient(90deg, #303f9f, #fd7e14);
+}
+
+/* ---------- Spinner ---------- */
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.spinner-border {
+  width: 36px;
+  height: 36px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #303f9f;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Message vide ---------- */
+.alert-info {
+  background: #ffffff;
+  border: 1px dashed #e5e7eb;
+  border-radius: 12px;
+  padding: 28px;
+  text-align: center;
+  color: #6b7280;
+  margin-top: 18px;
+}
+
+/* ---------- Carte rapport ---------- */
+.rapport-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.rapport-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.rapport-header {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rapport-header h4 {
+  font-size: clamp(16px, 2vw, 18px);
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.badge.attente {
+  background: rgba(48,63,159,0.08);
+  color: #303f9f;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 12px;
+  border: 1px solid rgba(48,63,159,0.2);
+}
+
+.rapport-body {
+  padding: 0 16px 16px 16px;
+}
+
+.rapport-body p {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.rapport-body a.btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+ 
+  background-color: #303f9f;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: filter 0.15s ease;
+}
+
+
+
+.rapport-body a.btn:hover {
+  filter: brightness(1.1);
+}
+
+/* ---------- Actions ---------- */
+.rapport-actions {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rapport-actions textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 100px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rapport-actions textarea::placeholder {
+  color: #9aa3ae;
+}
+
+.rapport-actions textarea:focus {
+  border-color: #303f9f;
+  box-shadow: 0 0 0 3px rgba(48,63,159,0.15);
+}
+
+.rapport-actions .buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rapport-actions .btn-success,
+.rapport-actions .btn-danger {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.1s ease, filter 0.15s ease;
+}
+
+.rapport-actions .btn-success {
+  background: linear-gradient(135deg, #10b981, #047857);
+  color: #fff;
+}
+
+.rapport-actions .btn-success:hover {
+  filter: brightness(1.1);
+}
+
+.rapport-actions .btn-danger {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #fff;
+}
+
+.rapport-actions .btn-danger:hover {
+  filter: brightness(1.1);
+}
+/* ---------- Bouton "Traiter" ---------- */
+.btn-traiter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: linear-gradient(135deg, #303f9f, #fd7e14);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(48, 63, 159, 0.15);
+  min-width: 180px;
+}
+
+.btn-traiter:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(48, 63, 159, 0.2);
+}
+
+.btn-traiter.active {
+  background: linear-gradient(135deg, #3f51b5, #303f9f);
+}
+
+.btn-traiter-icon {
+  transition: transform 0.25s ease;
+}
+
+.btn-traiter.active .btn-traiter-icon {
+  transform: rotate(180deg);
+}
+
+
+
+
+/* ---------- Groupe de boutons ---------- */
+.rapport-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}

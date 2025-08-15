@@ -1,0 +1,224 @@
+/* ===============================
+   Conteneur principal
+   =============================== */
+.container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  color: #333;
+}
+
+/* ===============================
+   Zone de filtre
+   =============================== */
+.filter-container {
+  background: #f8f9fa;
+  padding: 1rem 1.2rem;
+  border-radius: 6px;
+  border: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.filter-container label {
+  font-weight: 500;
+  color: #303f9f;
+}
+
+.filter-container select {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+}
+
+.filter-container select:focus {
+  outline: none;
+  border-color: #303f9f;
+  box-shadow: 0 0 0 2px rgba(48, 63, 159, 0.1);
+}
+
+.results-count {
+  font-style: italic;
+  color: #666;
+  font-size: 0.9em;
+}
+
+/* ===============================
+   Messages
+   =============================== */
+.alert {
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.alert-info {
+  background-color: #f3eae2;
+  color: #fd7e14;
+  border-left: 4px solid #fd7e14;
+}
+
+.alert-danger {
+  background-color: #ffebee;
+  color: #c62828;
+  border-left: 4px solid #c62828;
+}
+
+/* ===============================
+   Liste des offres
+   =============================== */
+.list-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.list-group-item {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.list-group-item:hover {
+  border-color: #303f9f;
+  box-shadow: 0 4px 10px rgba(48, 63, 159, 0.1);
+  transform: translateY(-1px);
+}
+
+/* ===============================
+   En-tête offre
+   =============================== */
+.offer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.offer-header h5 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #000; /* Titre en noir */
+}
+
+.offer-status {
+  padding: 0.35rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Badges actif/inactif */
+.offer-status.inactif {
+  background-color: #fff3e0;
+  color: #e66a00;
+}
+
+.offer-status.actif {
+  background-color: #ffebee;
+  color: #c62828;
+  
+}
+
+/* ===============================
+   Description
+   =============================== */
+.offer-description {
+  margin: 0.1rem 0;
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.4;
+  text-align: left;
+}
+
+/* ===============================
+   Pied de carte
+   =============================== */
+.offer-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.offer-footer small {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+
+
+
+
+
+button.list-group-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fff;
+  width: 100%;
+  text-align: left;
+}
+button.list-group-item:focus {
+  outline: none;
+}
+
+
+/* ===============================
+   Responsive
+   =============================== */
+@media (max-width: 768px) {
+  .filter-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .d-flex {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+}
+
+
+.btn-see-candidatures {
+ background: linear-gradient(90deg, #303f9f, #fd7e14);
+  color: rgb(255, 255, 255); 
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.btn-see-candidatures:hover {
+  background-color: #0056b3;
+}
+.offer-title-date {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* espace entre titre et date */
+}
+
+.offer-title-date h5 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #000;
+}
+
+.offer-date {
+  font-size: 0.85rem;
+  color: #777;
+}

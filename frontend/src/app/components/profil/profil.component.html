@@ -1,0 +1,106 @@
+  <br>  <br>  <br>
+<div class="profile-container">
+  <div *ngIf="isLoading" class="loading">Chargement...</div>
+
+  <div *ngIf="!isLoading && userProfile" class="profile-card">
+      <!-- Message de succès -->
+<div *ngIf="successMessage" class="message-success">
+  {{ successMessage }}
+  <button (click)="closeMessage('success')" style="background:none;border:none;float:right;font-weight:bold;cursor:pointer;">×</button>
+</div>
+
+<!-- Message d'erreur -->
+<div *ngIf="errorMessage" class="message-error">
+  {{ errorMessage }}
+  <button (click)="closeMessage('error')" style="background:none;border:none;float:right;font-weight:bold;cursor:pointer;">×</button>
+</div>
+
+    <h2>Mon Profil</h2>
+
+    <div *ngIf="!isEditing" class="profile-view">
+      <div class="profile-field">
+        <label>Nom:</label>
+        <span>{{ userProfile.nom }}</span>
+      </div>
+      <div class="profile-field">
+        <label>Prénom:</label>
+        <span>{{ userProfile.prenom }}</span>
+      </div>
+      <div class="profile-field">
+        <label>Email:</label>
+        <span>{{ userProfile.email }}</span>
+      </div>
+      <div class="profile-field">
+        <label>Rôle:</label>
+        <span>{{ userProfile.role }}</span>
+      </div>
+       <div class="profile-field" *ngIf="userProfile.role === 'candidat'">
+        <label>Etblissement:</label>
+        <span>{{ userProfile.etablissement }}</span>
+      </div>
+
+       <div class="profile-field" *ngIf="userProfile.role === 'candidat'">
+        <label>Niveau d'études:</label>
+        <span>{{ userProfile.niveau_etudes }}</span>
+      </div>
+       
+       <div class="profile-field" *ngIf="userProfile.role === 'candidat'" >
+        <label>Téléphone:</label>
+        <span>{{ userProfile.telephone}}</span>
+      </div>
+
+      <div *ngIf="userProfile.role === 'encadrant'" class="profile-field">
+        <label>Spécialité:</label>
+        <span>{{ userProfile.specialite_encadrant || 'Non spécifiée' }}</span>
+      </div>
+    <div class="profile-field">
+  <label>Date Creation :</label>
+  <span>{{ userProfile.created_at | date:'yyyy-MM-dd' }}</span>
+</div>
+      <button (click)="toggleEdit()" class="edit-btn">Modifier</button>
+    </div>
+
+    <form *ngIf="isEditing" [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-edit">
+      <div class="form-group">
+        <label for="nom">Nom</label>
+        <input id="nom" formControlName="nom" type="text">
+      </div>
+
+      <div class="form-group">
+        <label for="prenom">Prénom</label>
+        <input id="prenom" formControlName="prenom" type="text">
+      </div>
+
+       <div class="form-group" *ngIf="userProfile.role === 'candidat'">
+        <label for="telephone">Téléphone</label>
+        <input id="telephone" formControlName="telephone" type="text">
+      </div>
+      
+       <div class="form-group" *ngIf="userProfile.role === 'candidat'">
+        <label for="niveau_etudes">Niveau d'études</label>
+        <input id="niveau_etudes" formControlName="niveau_etudes" type="text">
+      </div>
+
+        
+       <div class="form-group" *ngIf="userProfile.role === 'candidat'" >
+        <label for="etablissement">Établissement</label>
+        <input id="etablissement" formControlName="etablissement" type="text">
+      </div>
+      <div *ngIf="userProfile.role === 'encadrant'" class="form-group">
+        <label for="specialite">Spécialité</label>
+        <input id="specialite" formControlName="specialite_encadrant" type="text">
+      </div>
+
+      <div class="form-actions">
+        <button type="button" (click)="toggleEdit()" class="cancel-btn">Annuler</button>
+        <button type="submit" [disabled]="!profileForm.valid || isLoading" class="save-btn">
+          {{ isLoading ? 'Enregistrement...' : 'Enregistrer' }}
+        </button>
+      </div>
+
+
+  
+
+    </form>
+  </div>
+</div>

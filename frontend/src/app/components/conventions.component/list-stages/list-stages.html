@@ -1,0 +1,107 @@
+<br><br><br><br><br>
+<div class="stages-dashboard">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <h2 class="dashboard-title">Stages</h2>
+    
+    <!-- Boutons de navigation pour non-candidats -->
+    <div *ngIf="userRole != 'candidat'" class="view-toggle">
+      <button class="view-btn active" [class.active]="!isHistoriqueMode" (click)="loadActiveStages()">
+        <i class="fas fa-running"></i> Stages Actifs
+      </button>
+      <button class="view-btn" [class.active]="isHistoriqueMode" (click)="loadHistoriqueStages()">
+        <i class="fas fa-archive"></i> Historique
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtre pour candidats -->
+  <div *ngIf="userRole === 'candidat'" class="filter-section">
+    <div class="filter-control">
+      <label for="statutFilter"><i class="fas fa-filter"></i> Statut :</label>
+      <select id="statutFilter" [(ngModel)]="statutFilter" (change)="loadMesStages()">
+        <option *ngFor="let option of statutOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Messages d'état -->
+  <div *ngIf="errorMessage" class="alert-message error">
+    <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!loading && stages.length === 0" class="alert-message info">
+    <i class="fas fa-info-circle"></i> Aucun stage trouvé
+  </div>
+
+  <!-- Chargement -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement en cours...</p>
+  </div>
+
+  <!-- Grille des stages - Version large et compacte -->
+  <div *ngIf="!loading && stages.length > 0" class="stages-grid-wide">
+    <div *ngFor="let stage of stages" class="stage-card-wide">
+      <div class="card-header-wide">
+        <div class="header-content">
+          <h3 class="stage-title-wide">{{ stage.sujet_stage }}</h3>
+          <span class="stage-badge" [ngClass]="getBadgeClass(stage.statut_stage)">
+            {{ stage.statut_stage }}
+          </span>
+        </div>
+        <div class="period-info">
+          <i class="far fa-calendar-alt"></i>
+          {{ stage.date_debut | date:'dd/MM/yyyy' }} - {{ stage.date_fin | date:'dd/MM/yyyy' }}
+        </div>
+      </div>
+
+      <div class="card-body-wide">
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Mode :</span>
+            <span class="info-value">{{ stage.Candidature?.Offre?.mode_stage || 'Non renseigné' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Type :</span>
+            <span class="info-value">{{ stage.Candidature?.Offre?.type_stage || 'Non renseigné' }}</span>
+          </div>
+          <div class="info-item" *ngIf="stage.Encadrant">
+            <span class="info-label">Encadrant :</span>
+            <span class="info-value">{{ stage.Encadrant.prenom }} {{ stage.Encadrant.nom }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer-wide">
+        <button class="details-btn-wide" (click)="showCnv(stage)">
+          <i class="fas fa-file-contract"></i> Conventions
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour les conventions de rh  -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Conventions - {{selectedStageForModal?.sujet_stage}}</h3>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <app-conventions-component *ngIf="userRole=='rh'"
+        [stageId]="selectedStageForModal?.id"
+        (back)="closeModal()">
+      </app-conventions-component>
+
+      <app-convention-candidat-component *ngIf="userRole=='candidat'"
+        [stageId]="selectedStageForModal?.id"
+        (back)="closeModal()">
+      </app-convention-candidat-component>
+    </div>
+  </div>
+</div>

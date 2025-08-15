@@ -1,0 +1,319 @@
+/* Base Styles */
+.stages-dashboard {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.dashboard-title {
+  color: #303f9f;
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+/* View Toggle */
+.view-toggle {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.view-btn {
+  padding: 0.6rem 1.2rem;
+  background-color: white;
+  border: 2px solid #303f9f;
+  color: #303f9f;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.view-btn:hover {
+  background-color: #f5f5f5;
+}
+
+.view-btn.active {
+  background: linear-gradient(90deg, #303f9f, #fd7e14);
+  color: white;
+}
+
+.view-btn i {
+  font-size: 0.9rem;
+}
+
+/* Filter Section */
+.filter-section {
+  margin-bottom: 2rem;
+}
+
+.filter-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.filter-control label {
+  font-weight: 600;
+  color: #303f9f;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-control select {
+  padding: 0.6rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-width: 200px;
+  background-color: white;
+  transition: all 0.3s;
+}
+
+.filter-control select:focus {
+  outline: none;
+  border-color: #303f9f;
+  box-shadow: 0 0 0 2px rgba(48, 63, 159, 0.1);
+}
+
+/* Alert Messages */
+.alert-message {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.alert-message i {
+  font-size: 1.2rem;
+}
+
+.alert-message.error {
+  background-color: #fdecea;
+  color: #d32f2f;
+  border-left: 4px solid #d32f2f;
+}
+
+.alert-message.info {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #2e7d32;
+}
+
+/* Loading State */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #303f9f;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(48, 63, 159, 0.1);
+  border-radius: 50%;
+  border-top-color: #303f9f;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Stages Grid */
+.stages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.stage-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e0e0e0;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stage-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Card Header */
+.card-header {
+  padding: 1.2rem 1.5rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stage-title {
+  margin: 0;
+  color: #303f9f;
+  font-size: 1.1rem;
+  flex: 1;
+}
+
+.stage-badge {
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-left: 1rem;
+}
+
+/* Status Badge Colors */
+.stage-badge.En_cours {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+.stage-badge.Terminé {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.stage-badge.Planifié {
+  background-color: #f4e2d7;
+  color: #ea7f0e;
+}
+
+/* Card Body */
+.card-body {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+/* Nouveaux styles pour l'affichage en ligne */
+.info-row {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.info-label {
+  font-weight: 500;
+  color: #555;
+  margin-right: 0.5rem;
+  min-width: 80px;
+  display: inline-block;
+}
+
+.info-value {
+  color: #333;
+  flex: 1;
+  word-break: break-word;
+}
+
+/* Ajustements pour les sections */
+.info-section {
+  margin-bottom: 1rem;
+}
+
+.info-section h4 {
+  margin: 1rem 0 0.5rem 0;
+  color: #303f9f;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Ajustement des cartes */
+.stage-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e0e0e0;
+}
+
+.card-body {
+  padding: 1.2rem 1.5rem;
+  flex: 1;
+}
+
+.no-data {
+  color: #666;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+/* Card Footer */
+.card-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.details-btn {
+  padding: 0.6rem 1.2rem;
+  background-color: white;
+  color: #303f9f;
+  border: 1px solid #303f9f;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.details-btn:hover {
+  background-color: #303f9f;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .stages-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filter-control {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

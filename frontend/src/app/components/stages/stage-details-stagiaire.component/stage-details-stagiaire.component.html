@@ -1,0 +1,562 @@
+<div class="stage-details-container">
+  <br><br><br><br>
+  <button class="btn-back" (click)="goBack()">
+    <i class="bi bi-arrow-left"></i> Retour à la liste
+  </button>
+
+  <div *ngIf="loading" class="loading">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && stage" class="stage-content">
+    <div class="stage-header">
+      <h2>{{ stage.sujet_stage }}</h2>
+      <span class="status-badge" [ngClass]="getBadgeClass(stage.statut_stage)">
+        {{ stage.statut_stage }}
+      </span>
+    </div>
+
+    
+  
+    <div class="stage-period">
+        <i class="bi bi-calendar-week"></i>
+        {{ formatDate(stage.date_debut) }} - {{ formatDate(stage.date_fin) }}
+    </div>
+<br>
+
+    <div class="stage-info2">
+      <div class="info-section2">
+        <h3>Informations du stage</h3>
+        <p><i class="fa-solid fa-calendar-days"></i><strong>Période :</strong> {{ formatDate(stage.date_debut) }} - {{ formatDate(stage.date_fin) }}</p>
+        <p><strong>Sujet de stage :</strong> {{ stage.sujet_stage || 'Non renseignée' }}</p>
+        <p><strong>Mode :</strong> {{ stage.Candidature?.Offre?.mode_stage || 'Non renseigné' }}</p>
+<p><strong>Type :</strong> {{ stage.Candidature?.Offre?.type_stage || 'Non renseigné' }}</p>
+      </div>
+
+      
+
+      <div class="info-section2">
+        <h3>Encadrant actuel</h3>
+        <div *ngIf="stage.Encadrant; else noEncadrant">
+        
+           <p><i class="fa-solid fa-user"></i> <strong>Nom :</strong> {{ stage.Encadrant.prenom }} {{ stage.Encadrant.nom }}</p>
+           <p><i class="fa-solid fa-envelope"></i><strong>Email :</strong> {{ stage.Encadrant.email }}</p>
+            <p *ngIf="stage.Encadrant.specialite_encadrant">
+            <strong>Spécialité :</strong> {{ stage.Encadrant.specialite_encadrant }}
+          </p>
+        </div>
+        <ng-template #noEncadrant>
+          <p class="text-muted">Aucun encadrant affecté</p>
+        </ng-template>
+      </div>
+    </div>
+
+   
+
+
+<!-- Ajoutez cette section après la section Attestation -->
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="section-container" >
+
+    <h3>Convention de stage</h3>
+
+  
+
+  <!-- Erreur -->
+  <div *ngIf="conventionError" class="alert alert-danger">
+    {{ conventionError }}
+  </div>
+
+  <!-- Spinner -->
+  <div *ngIf="loadingConventions" class="text-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Convention signée -->
+  <div *ngIf="!loadingConventions" class="signed-convention-section">
+    <div *ngIf="conventionSignee; else noConventionSignee" class="convention-compact">
+      <div class="rapport-header">
+        <div class="icon">
+          <i class="fas fa-check" style="color: green;"></i>
+        </div>
+        <div class="convention-info">
+          <span>Convention signée</span>
+          <span>Déposé le {{ formatDate(conventionSignee.date_depot) }}</span>
+        </div>
+        <a *ngIf="conventionSignee.lien" 
+           [href]="'http://localhost:3000/' + conventionSignee.lien" 
+           target="_blank" 
+           class="view-btn">
+          <i class="bi bi-eye"></i> Voir
+        </a>
+      </div>
+    </div>
+    <ng-template #noConventionSignee>
+      <div class="alert alert-info" class="state-message">
+         <i class="no-document fa-solid fa-info-circle"></i>  La convention signée n'a pas encore été déposée par le RH.
+      </div>
+    </ng-template>
+  </div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Sections rapports -->
+<div class="section-container" >
+    
+       <h3>Rapports de stage</h3>
+  
+ 
+  
+  <!-- Message d'erreur -->
+  <div *ngIf="reportError" class="alert alert-danger">
+    {{ reportError }}
+  </div>
+  
+  <!-- Chargement -->
+  <div *ngIf="loadingReports" class="text-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Rapport validé en premier -->
+  <div *ngIf="!loadingReports && rapports.length > 0">
+    <div *ngIf="rapportValide(); else noRapportValide" class="convention-compact" >
+      <div class="rapport-header">
+        <div class="icon">
+          <i class="fas fa-check" style="color: green;"></i>
+        </div>
+        <div class="convention-info">
+          <span>Rapport validé</span>
+          <span>Déposé le {{ formatDate(rapportValide().date_depot) }}</span>
+        </div>
+        <a *ngIf="rapportValide().lien" 
+           [href]="'http://localhost:3000/' + rapportValide().lien" 
+           target="_blank" 
+           class="view-btn">
+          <i class="fas fa-eye"></i> Voir
+        </a>
+      </div>
+    </div>
+    <ng-template #noRapportValide>
+      <div class="alert alert-info" class="state-message">
+        <i class="no-document fa-solid fa-info-circle"></i>   Aucun rapport validé pour le moment.
+      </div>
+    </ng-template>
+  </div>
+  
+  <!-- Section upload + toggle voir rapports -->
+  <div class="upload-section-compact d-flex align-items-center justify-content-between flex-wrap mt-3">
+    
+    <div class="left-buttons d-flex align-items-center gap-2">
+      <!-- Bouton upload -->
+      <button 
+        class="upload-square-btn" 
+        (click)="triggerReportFileInput()" 
+        title="Ajouter un rapport"
+        [disabled]="false"
+        type="button">
+        <i class="upload-icon fas fa-cloud-upload-alt"></i>
+      </button>
+
+      <!-- Bouton toggle rapports déposés -->
+      <button 
+        class="upload-square-btn toggle-btn" 
+        (click)="toggleRapports()"
+        [attr.aria-expanded]="showRapports"
+        aria-controls="rapportsList"
+        title="Voir rapports déposés">
+        <i [ngClass]="showRapports ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+      </button>
+    </div>
+    
+    <!-- Message à droite -->
+    <div class="upload-disabled-message" *ngIf="false">
+      <!-- si tu veux un message d'info quand upload désactivé -->
+    </div>
+
+    <input #reportFileInput 
+           type="file" 
+           id="reportFileInput"
+           (change)="onReportFileSelected($event)"
+           accept=".pdf,.doc,.docx,.odt"
+           style="display: none;">
+  </div>
+  
+<!-- Liste rapports déposés toggle -->
+<div *ngIf="showRapports" class="other-rapports-list">
+  <div *ngIf="rapports.length > 0; else noRapports">
+
+    <div *ngFor="let rapport of rapports" class="rapport-compact">
+      <div class="rapport-summary">
+
+        <!-- Lien Voir à gauche -->
+        <a *ngIf="rapport.lien" 
+           [href]="'http://localhost:3000/' + rapport.lien" 
+           target="_blank" 
+           class="view-btn">
+          <i class="fas fa-eye"></i> Voir
+        </a>
+
+        <!-- Badge + dates -->
+        <div class="rapport-info">
+          <span class="badge" 
+                [ngClass]="{
+                  'badge-success': rapport.statut === 'accepté',
+                  'badge-danger': rapport.statut === 'refusé',
+                  'badge-info': rapport.statut === 'déposé'
+                }">
+            {{ rapport.statut | uppercase }}
+          </span>
+          <span class="date-info">Déposé le {{ formatDate(rapport.date_depot) }}</span>
+
+          <!-- Date de traitement si statut ≠ déposé -->
+          <ng-container *ngIf="rapport.statut !== 'déposé' && rapport.TraitementDocuments?.length">
+            <ng-container *ngIf="rapport.TraitementDocuments[rapport.TraitementDocuments.length - 1] as lastTraitement">
+              <span class="date-info traitement-date">
+                traité le {{ lastTraitement.date_traitement | date:'dd/MM/yyyy HH:mm' }}
+              </span>
+            </ng-container>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Bloc traitement (dernier uniquement) -->
+      <div *ngIf="rapport.TraitementDocuments?.length" class="traitements">
+        <ng-container *ngIf="rapport.TraitementDocuments[rapport.TraitementDocuments.length - 1] as lastTraitement">
+          <div class="traitement-info">
+            <span class="traitement-action" 
+                  [ngClass]="{
+                    'text-success': lastTraitement.action === 'accepté',
+                    'text-danger': lastTraitement.action === 'refusé',
+                    'text-info': lastTraitement.action === 'déposé'
+                  }">
+              {{ lastTraitement.action | uppercase }}
+            </span>
+            <span class="date-info">
+              le {{ lastTraitement.date_traitement | date:'dd/MM/yyyy HH:mm' }}
+            </span>
+          </div>
+          <div *ngIf="lastTraitement.commentaire" class="traitement-comment">
+            <i class="fas fa-comment"></i> {{ lastTraitement.commentaire }}
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+  </div>
+
+  <ng-template #noRapports>
+    <div class="no-rapports" class="state-message">
+       <i class="no-document fa-solid fa-info-circle"></i>  Aucun rapport déposé pour ce stage.
+    </div>
+  </ng-template>
+</div>
+
+
+  <!-- Formulaire upload du nouveau rapport -->
+  <div *ngIf="selectedReportFile" class="file-preview mt-3 d-flex align-items-center gap-3">
+    <div class="file-info d-flex align-items-center gap-2">
+      <i class="fas fa-paperclip"></i>
+      <span class="file-name">{{ selectedReportFile.name }}</span>
+      <span class="file-size text-muted">({{ (selectedReportFile.size / 1024).toFixed(0) }} KB)</span>
+    </div>
+    <div class="file-actions d-flex gap-2">
+      <button class="action-btn confirm-btn" (click)="uploadReport()" [disabled]="uploadingReport">
+        <i class="fas fa-check"></i> 
+      </button>
+      <button class="action-btn cancel-btn" (click)="cancelReportUpload()" [disabled]="uploadingReport">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+ <!-- Ajoutez cette section après la section Rapport validé -->
+<div class="section-container">
+  <div class="rapport-header">
+  <h3>Attestation de stage</h3>
+  <!-- Infos de l'attestation si disponible -->
+  <div *ngIf="!checkingAttestation && attestation" class="mt-2" class="date-info">
+    <p>Générée le {{ attestation.date_depot | date:'dd/MM/yyyy' }}</p>
+  </div>
+  </div>
+  <!-- Si erreur -->
+  <div *ngIf="attestationError" class="alert alert-danger">
+    {{ attestationError }}
+  </div>
+
+  <!-- Spinner pendant le chargement -->
+  <div *ngIf="checkingAttestation" class="text-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+
+  <!-- Bouton voir attestation (si disponible) -->
+ 
+
+       <a  *ngIf="!checkingAttestation && attestation" 
+       class="document-btn"
+               href="http://localhost:3000/{{ attestation.lien }}" 
+               target="_blank">
+             <i class="fa-solid fa-file-circle-check"></i> Voir l'attestation
+            </a>
+
+
+
+  <!-- Message si pas disponible -->
+  <div *ngIf="!checkingAttestation && !attestation" class="state-message">
+     <i class="no-document fa-solid fa-info-circle"></i>  L'attestation n'a pas encore été générée.
+  </div>
+</div>
+
+
+
+
+
+<!-- Section Absences -->
+<div class="info-section">
+  <h3>Absences</h3>
+
+  <!-- Erreur -->
+  <div *ngIf="absenceError" class="alert alert-danger">
+    {{ absenceError }}
+  </div>
+
+  <div *ngIf="absences.length > 0" class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let absence of absences">
+          <td>{{ formatDate(absence.date_absence) }}</td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'bg-success': justificationStatus[absence.id]?.isJustified,
+              'bg-danger': !justificationStatus[absence.id]?.isJustified
+            }">
+              {{ justificationStatus[absence.id]?.isJustified ? 'Justifiée' : 'Non justifiée' }}
+            </span>
+          </td>
+          <td>
+            <!-- Si absence justifiée -->
+            <div *ngIf="justificationStatus[absence.id]?.isJustified && justificationStatus[absence.id]?.justification">
+              <a [href]="'http://localhost:3000/' + justificationStatus[absence.id]?.justification.lien" 
+                 target="_blank" 
+                 class="view-btn">
+                <i class="fas fa-eye"></i> Voir le justificatif
+              </a>
+            </div>
+
+            <!-- Si absence non justifiée -->
+            <div *ngIf="!justificationStatus[absence.id]?.isJustified">
+              <!-- Bouton upload -->
+              <button 
+                class="upload-square-btn" 
+                (click)="triggerJustificationFileInput(absence.id)" 
+                title="Ajouter un justificatif"
+                [disabled]="hasPendingJustification(absence.id)"
+                type="button">
+                <i class="upload-icon fas fa-cloud-upload-alt"></i>
+              </button>
+
+              <!-- Message si justificatif en attente -->
+              <div *ngIf="hasPendingJustification(absence.id)" class="state-message">
+                <i class="no-document fa-solid fa-info-circle"></i>  Un justificatif est en attente de validation
+              </div>
+
+              <!-- Input caché -->
+              <input type="file" 
+                     [id]="'justificationFileInput_' + absence.id"
+                     (change)="onJustificationFileSelected($event, absence.id)"
+                     accept=".pdf,.jpg,.jpeg,.png"
+                     [disabled]="hasPendingJustification(absence.id)"
+                     style="display: none;">
+
+              <!-- Prévisualisation + boutons -->
+              <div *ngIf="selectedAbsenceId === absence.id && selectedFile" class="file-preview mt-2 d-flex align-items-center gap-3">
+                <div class="file-info d-flex align-items-center gap-2">
+                  <i class="fas fa-paperclip"></i>
+                  <span class="file-name">{{ selectedFile.name }}</span>
+                  <span class="file-size text-muted">({{ (selectedFile.size / 1024).toFixed(0) }} KB)</span>
+                </div>
+                <div class="file-actions d-flex gap-2">
+                  <button class="action-btn confirm-btn" (click)="uploadJustification()" [disabled]="uploadingJustification">
+                    <i class="fas fa-check"></i> 
+                  </button>
+                  <button class="action-btn cancel-btn" (click)="cancelJustificationUpload()" [disabled]="uploadingJustification">
+                    <i class="fas fa-times"></i> 
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Historique des traitements -->
+            <div *ngIf="justificationStatus[absence.id]?.justification?.TraitementDocuments?.length" class="traitements mt-2">
+              <div *ngFor="let traitement of justificationStatus[absence.id]?.justification?.TraitementDocuments" class="traitement">
+                <div class="traitement-info">
+                  <span class="traitement-action" [ngClass]="{
+                    'text-success': traitement.action === 'accepté',
+                    'text-danger': traitement.action === 'refusé',
+                    'text-info': traitement.action === 'déposé'
+                  }">
+                    {{ traitement.action | uppercase }}
+                  </span>
+                  <span class="date-info ms-2">
+                    le {{ traitement.date_traitement | date:'dd/MM/yyyy HH:mm' }}
+                  </span>
+                  <span *ngIf="traitement.Utilisateur" class="traitement-actor ms-2">
+                    par {{ traitement.Utilisateur.prenom }} {{ traitement.Utilisateur.nom }}
+                  </span>
+                </div>
+                <div *ngIf="traitement.commentaire" class="traitement-comment ms-4">
+                  <i class="fas fa-comment"></i> {{ traitement.commentaire }}
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="absences.length === 0" class="no-data">
+    <i class="no-document fa-solid fa-info-circle"></i>   Aucune absence enregistrée pour ce stage.
+  </div>
+</div>
+
+
+
+
+
+
+<!-- Évaluation -->
+<div class="section-container">
+  <div class="evaluation-header" >
+    <h2><i class="bi bi-clipboard2-pulse"></i> Évaluation </h2>
+    <div *ngIf="evaluation?.date_evaluation" class="date-info">
+ 
+      Déposée le {{ evaluation.date_evaluation | date:'dd/MM/yyyy' }}
+    </div>
+  </div>
+   <div class="document-body">
+  <!-- 1️⃣ Stage pas encore terminé -->
+  <div *ngIf="stage.statut_stage !== 'Terminé'" class="state-message">
+    <i class="bi bi-info-circle"></i>
+     <i class="no-document fa-solid fa-info-circle"></i>  L'évaluation sera disponible une fois le stage terminé
+  </div>
+
+  <!-- 2️⃣ Stage terminé -->
+  <div *ngIf="stage.statut_stage === 'Terminé'">
+    <!-- Erreur -->
+    <div *ngIf="evaluationError" class="error-message">
+      <i class="bi bi-exclamation-triangle"></i>
+      {{ evaluationError }}
+    </div>
+
+    <!-- Évaluation existante -->
+    <div *ngIf="evaluation && evaluation.date_evaluation; else noEvaluation">
+      <button class="toggle-evaluation-btn" 
+              (click)="showEvaluationView = !showEvaluationView">
+        <i class="bi" [class.bi-eye]="!showEvaluationView" [class.bi-eye-slash]="showEvaluationView"></i>
+        <i class="fa-solid fa-star"></i> 
+        {{ showEvaluationView ? 'Masquer' : 'Consulter' }} l'évaluation
+      </button>
+
+      <div *ngIf="showEvaluationView" class="evaluation-details">
+        <div class="criteria-grid">
+          <div class="criterion">
+            <label>Comportement</label>
+            <div class="rating">
+              <div class="stars" [style.--rating]="evaluation.comportement"></div>
+              <span class="score">{{ evaluation.comportement }}/5</span>
+            </div>
+          </div>
+          <div class="criterion">
+            <label>Travail d'équipe</label>
+            <div class="rating">
+              <div class="stars" [style.--rating]="evaluation.travail_equipe"></div>
+              <span class="score">{{ evaluation.travail_equipe }}/5</span>
+            </div>
+          </div>
+          <div class="criterion">
+            <label>Qualité du travail</label>
+            <div class="rating">
+              <div class="stars" [style.--rating]="evaluation.qualite_travail"></div>
+              <span class="score">{{ evaluation.qualite_travail }}/5</span>
+            </div>
+          </div>
+          <div class="criterion">
+            <label>Adaptabilité</label>
+            <div class="rating">
+              <div class="stars" [style.--rating]="evaluation.adaptable"></div>
+              <span class="score">{{ evaluation.adaptable }}/5</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="evaluation.commentaire" class="comment-box">
+          <h4><i class="bi bi-chat-square-text"></i> Commentaire</h4>
+          <p>{{ evaluation.commentaire }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3️⃣ Stage terminé mais pas d'évaluation -->
+    <ng-template #noEvaluation>
+      <div class="state-message">
+        
+        <i class="no-document fa-solid fa-info-circle"></i>  Évaluation pas encore disponible
+      </div>
+    </ng-template>
+  </div>
+   </div>
+</div>
+
+  </div>

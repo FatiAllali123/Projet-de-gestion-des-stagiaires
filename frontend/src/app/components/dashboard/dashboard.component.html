@@ -1,0 +1,171 @@
+<div class="dashboard-container">
+  <app-nav-bar></app-nav-bar>
+  
+  <div class="dashboard-content">
+    <app-sidebar 
+      (sectionSelected)="onSectionSelected($event)">
+    </app-sidebar>
+
+    <main class="main-content">
+      <!-- Contenu dynamique en fonction de la section -->
+       <div class="content">
+      <ng-container [ngSwitch]="activeSection">
+
+        <!--rh et candidat -->
+  <ng-container *ngSwitchCase="'cnv'"> 
+    <app-list-stages *ngIf="!selectedStageId" 
+    (stageSelected)="onStageSelected($event )"></app-list-stages>
+
+    <app-conventions-component
+     *ngIf="selectedStageId !== null && (userRole === 'rh' || userRole === 'candidat')" 
+    [stageId]="selectedStageId "
+    (back)="onBackToList()">
+  </app-conventions-component>
+
+ </ng-container>
+
+
+
+
+
+ <app-conventions-gestion  *ngSwitchCase="'cnv2'">
+  </app-conventions-gestion>
+
+
+        <!-- Admin And Rh -->
+       
+ 
+   
+<ng-container *ngSwitchCase="'comptes'">
+   <app-encadrant-list 
+    *ngIf="!selectedEncadrantId"
+    (encadrantSelected)="selectedEncadrantId = $event"
+     >
+  </app-encadrant-list>
+  <app-encadrant-stages 
+    *ngIf="selectedEncadrantId"
+    [encadrantId]="selectedEncadrantId"
+    (back)="onEncadrantBack()"
+    (stageSelected)="onStageSelectedFromEncadrantList($event)">
+    
+  </app-encadrant-stages>
+</ng-container>
+
+
+
+
+
+     <!--Admin-->
+  <app-staff-management *ngSwitchCase="'staff'"></app-staff-management>
+
+  
+      <!-- RH-->
+  <app-gestion-offres *ngSwitchCase="'offres'"></app-gestion-offres>
+
+
+  <ng-container *ngSwitchCase="'candidatures'">
+  <app-liste-offres 
+    *ngIf="!selectedOffreId" 
+    (offreSelected)="onOffreSelected($event )">
+  </app-liste-offres>
+
+  <app-gestion-candidatures
+    *ngIf="selectedOffreId"
+    [offreId]="selectedOffreId"
+    (back)="onRetourListe()">
+  </app-gestion-candidatures>
+   </ng-container>
+
+
+   <ng-container *ngSwitchCase="'stages-rh-admin'" >
+       <app-stages-list *ngIf="!selectedStageId" 
+    (stageSelected)="onStageSelected($event )"></app-stages-list>
+    
+       <app-stage-details-rh  
+    *ngIf="selectedStageId && userRole === 'rh'"
+    [stageId]="selectedStageId"
+    (back)="onBackToList()">
+  </app-stage-details-rh>
+
+   <app-stage-details-admin  
+    *ngIf="selectedStageId && userRole === 'admin'"
+    [stageId]="selectedStageId"
+    (back)="onBackToList()">
+  </app-stage-details-admin>
+  
+ 
+   </ng-container>
+
+   
+ 
+        <!-- Encadrant -->
+      
+         <ng-container *ngSwitchCase="'mes-stages-encadrant'" > 
+          <app-encadrant-stages *ngIf="!selectedStageId" 
+          (stageSelected)="onStageSelected($event )"></app-encadrant-stages>
+    
+        
+
+
+    <!-- Détails du stage (selon rôle) -->
+   <ng-container *ngIf="selectedStageId"  >
+    <app-stage-details-encadrant  *ngIf=" userRole === 'encadrant'"
+      [stageId]="selectedStageId"
+      (back)="onBackToList()">
+    </app-stage-details-encadrant>
+    
+    <app-stage-details-admin  *ngIf="userRole === 'admin'"  
+      [stageId]="selectedStageId"
+      (back)="onBackToList()">
+    </app-stage-details-admin>
+    <app-stage-details-rh *ngIf="userRole === 'rh'"  
+      [stageId]="selectedStageId"
+      (back)="onBackToList()">
+    </app-stage-details-rh>
+  </ng-container>
+        </ng-container>
+    
+        <app-evaluation   *ngSwitchCase="'evaluations'" ></app-evaluation>
+ 
+         <app-rapport-gestion   *ngSwitchCase="'rapports'" ></app-rapport-gestion>
+      
+        <!-- Candidat -->
+
+        <ng-container *ngSwitchCase="'mes-stages'" >
+        <app-stages-list  *ngIf="!selectedStageId" 
+    (stageSelected)="onStageSelected($event )"></app-stages-list>
+
+    <app-stage-details-stagiaire 
+        *ngIf="selectedStageId && userRole === 'candidat'"
+    [stageId]="selectedStageId"
+    (back)="onBackToList()">
+  </app-stage-details-stagiaire>
+        </ng-container>
+    
+           
+
+          <app-mes-candidatures *ngSwitchCase="'mes-candidatures'"  ></app-mes-candidatures>
+         <!--
+        <app-mes-candidatures *ngSwitchCase="'mes-candidatures'"></app-mes-candidatures>
+        
+        <app-offres-disponibles *ngSwitchCase="'offres'"></app-offres-disponibles>
+        -->   
+        
+        
+        <!-- Commun -->
+        <app-profil *ngSwitchCase="'mon-profil'"></app-profil>
+        <app-change-password *ngSwitchCase="'changer-password'"></app-change-password>
+      <app-sidebar 
+  (sectionSelected)="onSectionSelected($event)"
+  (logoutRequested)="logout()"> <!-- Ajoutez cette ligne -->
+</app-sidebar>
+      </ng-container>
+      </div>
+    </main>
+  </div>
+</div>
+
+
+
+
+

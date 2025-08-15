@@ -1,0 +1,96 @@
+ <app-nav-bar></app-nav-bar>
+<br><br><br><br>
+<h1 class="title">Offres de stage disponibles</h1>
+ <div class="container">
+
+  
+<br><br><br>
+  <!-- Formulaire de filtres -->
+  <div class="filters">
+    <input type="text" placeholder="Recherche par titre" [(ngModel)]="filtreTitre" (input)="appliquerFiltres()" />
+
+    <input type="text" placeholder="Compétences requises" [(ngModel)]="filtreCompetences" (input)="appliquerFiltres()" />
+
+    <select [(ngModel)]="filtreTypeStage" (change)="appliquerFiltres()">
+      <option value="">Tous modes de stage</option>
+     <option value="PFE">PFE</option>
+      <option value="PFA">PFA</option>
+      <option value="Initiation">Initiation</option>
+      <option value="Observation">Observation</option>
+      <!-- ajoute d'autres selon besoin -->
+    </select>
+
+    <select [(ngModel)]="filtreModeStage" (change)="appliquerFiltres()">
+      <option value="">Tous types de stage</option>
+      <option value="Présentiel">Présentiel</option>
+      <option value="Distanciel">Distanciel</option>
+      <option value="Hybride">Hybride</option>
+      <!-- adapte selon ton backend -->
+    </select>
+
+   
+
+
+    
+    <select [(ngModel)]="filtreEntretienRequis" (change)="appliquerFiltres()">
+      <option [ngValue]="null">Entretien requis ?</option>
+      <option [ngValue]="true">Oui</option>
+      <option [ngValue]="false">Non</option>
+    </select>
+  </div>
+<br>
+  <div *ngIf="loading" class="loading">Chargement des offres...</div>
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <div *ngIf="!loading && offres.length === 0" class="empty">Aucune offre trouvée.</div>
+
+  <div class="offres-list" *ngIf="!loading && offres.length > 0">
+    <div class="offre-card" *ngFor="let offre of offres">
+      <h2>{{ offre.titre }}</h2>
+      <p><strong>Compétences :</strong> {{ offre.competences_requises }}</p>
+      <p><strong>Description :</strong> {{ offre.description }}</p>
+      <p><strong>Durée :</strong> {{ offre.duree }}</p>
+      <p><strong>Mode de stage :</strong> {{ offre.mode_stage }}</p>
+      <p><strong>Type de stage :</strong> {{ offre.type_stage }}</p>
+      <p><strong>Entretien requis :</strong> {{ offre.entretien_requis ? 'Oui' : 'Non' }}</p>
+
+      <button class="btn-postuler" (click)="postuler(offre)">Postuler</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal de postulation -->
+<div *ngIf="showModal" class="modal-overlay">
+  <div class="modal-content">
+    <h2>Postuler à l'offre : {{ selectedOffre?.titre }}</h2>
+
+<!-- Champ pour le CV -->
+<label for="cvInput">CV :</label>
+<input type="file" id="cvInput" accept=".pdf,.doc,.docx" (change)="onCvFileSelected($event)" />
+
+<!-- Champ pour la lettre de motivation -->
+<label for="lettreInput">Lettre de motivation :</label>
+<input type="file" id="lettreInput" accept=".pdf,.doc,.docx" (change)="onLettreFileSelected($event)" />
+
+    <div *ngIf="postulationError" class="error">{{ postulationError }}</div>
+<br>
+    <div class="modal-actions">
+      <button (click)="envoyerCandidature()">Envoyer</button>
+      <button (click)="fermerModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Message d'erreur -->
+<div *ngIf="postulationError && !showModal" class="message-box error-message" id="errorBox">
+  <button class="close-btn" (click)="closeError()">×</button>
+  <div>{{ postulationError }}</div>
+</div>
+
+<!-- Message de succès -->
+<div *ngIf="successMessage" class="message-box success-message" id="successBox">
+  <button class="close-btn" (click)="closeSuccess()">×</button>
+  <div>{{ successMessage }}</div>
+</div>

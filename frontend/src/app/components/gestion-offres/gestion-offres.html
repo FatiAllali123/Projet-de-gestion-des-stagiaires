@@ -1,0 +1,142 @@
+<br><br><br><br><br><br>
+
+<div class ="gestion-offres-container">
+
+<div *ngIf="success" class="success">{{ success }}</div>
+<div *ngIf="error" class="error">{{ error }}</div>
+
+
+<!-- Section Filtres -->
+<div class="filters-section">
+ 
+  
+  <div class="filter-row">
+    <div class="filter-group">
+      <label>Statut :</label>
+      <select [(ngModel)]="filters.statut" (change)="appliquerFiltres()">
+        <option value="">Tous</option>
+        <option value="actif">Actives</option>
+        <option value="inactif">Inactives</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Type :</label>
+      <select [(ngModel)]="filters.type" (change)="appliquerFiltres()">
+        <option value="">Tous</option>
+        <option value="PFE">PFE</option>
+        <option value="PFA">PFA</option>
+        <option value="Initiation">Initiation</option>
+        <option value="Observation">Observation</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Mode :</label>
+      <select [(ngModel)]="filters.mode" (change)="appliquerFiltres()">
+        <option value="">Tous</option>
+        <option value="Présentiel">Présentiel</option>
+        <option value="Distanciel">Distanciel</option>
+        <option value="Hybride">Hybride</option>
+      </select>
+    </div>
+      <button class="reset-btn" (click)="reinitialiserFiltres()">
+      Réinitialiser
+    </button>
+  </div>
+
+ 
+</div>
+
+
+
+<button (click)="ouvrirFormulaire()">Nouvelle offre</button>
+
+<br>
+<!-- ✅ Formulaire affiché uniquement si showCreateForm est true -->
+
+
+
+<div *ngIf="showCreateForm">
+  <form (ngSubmit)="soumettreFormulaire()">
+    <input [(ngModel)]="formulaire.titre" name="titre" placeholder="Titre" required>
+    <input [(ngModel)]="formulaire.description" name="description" placeholder="Description" required>
+    <input [(ngModel)]="formulaire.competences_requises" name="competences" placeholder="Compétences requises" required>
+    <input [(ngModel)]="formulaire.duree" name="duree" placeholder="Durée" required>
+    <input [(ngModel)]="formulaire.dateDebutApprox" name="dateDebut" type="date" required>
+
+    <select [(ngModel)]="formulaire.mode_stage" name="mode_stage">
+      <option value="Présentiel">Présentiel</option>
+      <option value="Distanciel">Distanciel</option>
+      <option value="Hybride">Hybride</option>
+       
+    </select>
+
+    <select [(ngModel)]="formulaire.type_stage" name="type_stage">
+      <option value="PFE">PFE</option>
+      <option value="PFA">PFA</option>
+      <option value="Initiation">Initiation</option>
+      <option value="Observation">Observation</option>
+    </select>
+
+    <label>
+      <input type="checkbox" [(ngModel)]="formulaire.entretien_requis" name="entretien_requis">
+      Entretien requis
+    </label>
+
+    <button type="submit">Valider</button>
+    <button type="button" (click)="annuler()">Annuler</button>
+  </form>
+</div>
+
+<div *ngIf="viewingOffre" class="view-offre">
+  <p><strong>Titre :</strong> {{ viewingOffre.titre }}</p>
+  <p><strong>Description :</strong> {{ viewingOffre.description }}</p>
+  <p><strong>Compétences requises :</strong> {{ viewingOffre.competences_requises }}</p>
+  <p><strong>Durée :</strong> {{ viewingOffre.duree }}</p>
+  <p><strong>Date de début approximative :</strong> {{ viewingOffre.dateDebutApprox | date:'dd/MM/yyyy' }}</p>
+  <p><strong>Mode :</strong> {{ viewingOffre.mode_stage }}</p>
+  <p><strong>Type :</strong> {{ viewingOffre.type_stage }}</p>
+  <p><strong>Entretien requis :</strong> {{ viewingOffre.entretien_requis ? 'Oui' : 'Non' }}</p>
+  
+  <button (click)="annuler()">X</button>
+</div>
+<br>
+<hr>
+<br>
+<!-- Résultats filtrés -->
+<div *ngIf="filteredOffres.length !== offres.length" class="results-count">
+  {{ filteredOffres.length }} offre(s) sur {{ offres.length }}
+</div>
+
+<!--tableau -->
+<table>
+  <thead>
+    <tr>
+      <th>Titre</th>
+      <th>Durée</th>
+      <th>Mode</th>
+      <th>Type</th>
+      <th>Statut</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let offre of  filteredOffres">
+      <td>{{ offre.titre }}</td>
+      <td>{{ offre.duree }}</td>
+      <td>{{ offre.mode_stage }}</td>
+      <td>{{ offre.type_stage }}</td>
+      <td>{{ offre.statut_offre }}</td>
+      <td class="action">
+        <button (click)="ouvrirFormulaire(offre)">Modifier</button>
+        <button (click)="activerDesactiverOffre(offre)">
+          {{ offre.statut_offre === 'actif' ? 'Désactiver' : 'Activer' }}
+        </button>
+        <button (click)="supprimerOffre(offre.id!)">Supprimer</button>
+        <button (click)="ouvrirDetails(offre)">Détails</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
