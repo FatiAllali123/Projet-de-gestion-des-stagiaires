@@ -134,6 +134,7 @@ ouvrirFormulaire(offre?: Offre) {
     };
   }
 }
+
 // Méthode pour ouvrir la vue détails
 ouvrirDetails(offre: Offre) {
   this.viewingOffre = { ...offre };
@@ -155,32 +156,10 @@ annuler() {
   this.success = null;
   this.error = null;
 }
-/*
-  soumettreFormulaire() {
-    if (this.editingOffre) {
-      this.offreService.updateOffre(this.editingOffre.id!, this.editingOffre).subscribe({
-        next: (res) => {
-          this.success = res.message;
-          this.annuler();
-          this.chargerOffres();
-        },
-        error: (err) => (this.error = err.error?.message || 'Erreur lors de la modification')
-      });
-    } else {
-      this.offreService.createOffre(this.formulaire).subscribe({
-        next: (res) => {
-          this.success = res.message;
-          this.annuler();
-          this.chargerOffres();
-        },
-        error: (err) => (this.error = err.error?.message || 'Erreur lors de la création')
-      });
-    }
-  }
-*/
+
 soumettreFormulaire() {
   if (this.editingOffre) {
-    // Utiliser this.formulaire au lieu de this.editingOffre
+    
     this.offreService.updateOffre(this.editingOffre.id!, this.formulaire).subscribe({
       next: (res) => {
         this.success = res.message;
@@ -189,7 +168,7 @@ soumettreFormulaire() {
       },
       error: (err) => {
         this.error = err.error?.message || 'Erreur lors de la modification';
-        console.error('Erreur détaillée:', err); // Ajout pour le debug
+        console.error('Erreur détaillée:', err); // pour le debug
       }
     });
   } else {

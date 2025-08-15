@@ -112,10 +112,6 @@ h2 {
 }
 
 
-
-
-
-
 .btn-annuler {
   background-color: #dc3545;
   color: white;
@@ -130,18 +126,6 @@ h2 {
 .btn-annuler:hover {
   background-color: #b02a37;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* Styles pour les propositions */
 .propositions-section {

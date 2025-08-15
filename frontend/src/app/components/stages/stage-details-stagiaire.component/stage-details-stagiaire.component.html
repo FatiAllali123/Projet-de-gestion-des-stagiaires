@@ -53,29 +53,14 @@
       </div>
     </div>
 
-   
-
-
-<!-- Ajoutez cette section après la section Attestation -->
 
 </div>
-
-
-
-
-
-
-
-
 
 
 
 <div class="section-container" >
 
     <h3>Convention de stage</h3>
-
-  
-
   <!-- Erreur -->
   <div *ngIf="conventionError" class="alert alert-danger">
     {{ conventionError }}
@@ -119,24 +104,10 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 <!-- Sections rapports -->
 <div class="section-container" >
     
        <h3>Rapports de stage</h3>
-  
- 
   
   <!-- Message d'erreur -->
   <div *ngIf="reportError" class="alert alert-danger">
@@ -305,14 +276,7 @@
 
 
 
-
-
-
-
-
-
-
- <!-- Ajoutez cette section après la section Rapport validé -->
+ <!--  section Attestaion-->
 <div class="section-container">
   <div class="rapport-header">
   <h3>Attestation de stage</h3>
@@ -335,14 +299,12 @@
 
   <!-- Bouton voir attestation (si disponible) -->
  
-
        <a  *ngIf="!checkingAttestation && attestation" 
        class="document-btn"
                href="http://localhost:3000/{{ attestation.lien }}" 
                target="_blank">
              <i class="fa-solid fa-file-circle-check"></i> Voir l'attestation
             </a>
-
 
 
   <!-- Message si pas disponible -->

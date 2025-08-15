@@ -29,7 +29,7 @@ export class HomePageComponent implements OnInit {
   postulationError: string | null = null;
   successMessage: string | null = null;
   cv: File | null = null;
-   lettreMotivation: File | null = null;
+  lettreMotivation: File | null = null;
   userRole: string = '';
 
   constructor(private offreService: OffreService,  private authService: AuthService,

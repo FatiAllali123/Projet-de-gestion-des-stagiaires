@@ -47,16 +47,6 @@ export class EntretienModalComponent {
 
  
 
-  /*submit() {
-  if (this.entretienForm.valid) {
-    // Émet à la fois les données du formulaire ET l'ID de candidature
-    this.onSubmit.emit({
-      formData: this.entretienForm.value,
-      candidatureId: this.candidature?.id
-    });
-  }
-}*/
-
 submit() {
   const formData = this.entretienForm.value;
   this.onSubmit.emit({

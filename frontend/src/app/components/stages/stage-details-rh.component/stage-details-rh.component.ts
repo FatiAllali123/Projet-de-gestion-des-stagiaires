@@ -72,7 +72,7 @@ export class StageDetailsRhComponent implements OnInit {
   ngOnInit() {
     this.loadStageDetails();
     this.loadRapportValide();
-    this.loadConventions(); // Ajout ici
+    this.loadConventions(); 
      this.checkAttestation(); // Vérifier l'attestation
   }
 
@@ -82,7 +82,7 @@ export class StageDetailsRhComponent implements OnInit {
     this.stageService.getStageDetails(this.stageId).subscribe({
       next: (response) => {
         this.stage = response;
-         this.loadEvaluation(); // Ajout
+         this.loadEvaluation(); 
           this.checkStageStatus(); // Vérifier l'état du stage
         this.checkAttestation(); // Vérifier l'attestation
         
@@ -147,7 +147,7 @@ export class StageDetailsRhComponent implements OnInit {
     });
   }
 
- // Ajout de la méthode loadEvaluation
+ // 
   loadEvaluation() {
     if (this.stage?.statut_stage === 'Terminé') {
       this.evaluationService.getEvaluationByStageId(this.stageId).subscribe({
@@ -163,7 +163,7 @@ export class StageDetailsRhComponent implements OnInit {
       });
     }
   }
-   // Ajout de la méthode pour fermer la vue d'évaluation
+   //  méthode pour fermer la vue d'évaluation
   closeEvaluationView() {
     this.showEvaluationView = false;
   }
@@ -249,7 +249,7 @@ getBadgeClass(statut: string): string {
   }
 }
 
-  // Ajout de la méthode pour formater les dates
+  // méthode pour formater les dates
   formatDate(date: string): string {
     return this.datePipe.transform(date, 'dd/MM/yyyy') || '';
   }
@@ -289,37 +289,6 @@ loadConventions() {
 
 
 
-traiterConvention(documentId: number, action: 'valider' | 'refuser') {
-  Swal.fire({
-   
-    text: action === 'refuser' 
-      ? 'Veuillez saisir un commentaire pour le refus (optionnel):'
-      : 'Commentaire (optionnel) :',
-    input: 'textarea',
-    inputPlaceholder: 'Votre commentaire...',
-    showCancelButton: true,
-    confirmButtonText: 'Confirmer',
-    cancelButtonText: 'Annuler',
-    confirmButtonColor: '#303f9f',
-    cancelButtonColor: '#aaa',
-    background: '#fff',
-    customClass: {
-      title: 'stage-title',
-      input: 'stage-input',
-    }
-  }).then((result: import('sweetalert2').SweetAlertResult<any>) => {
-    if (result.isConfirmed) {
-      const commentaire = result.value || 
-        (action === 'refuser' ? 'Refusé sans commentaire' : '');
-      
-      this.documentservice.processConvention(documentId, action, commentaire)
-        .subscribe({
-          next: () => this.loadConventions(),
-          error: (err) => console.error('Erreur traitement convention', err)
-        });
-    }
-  });
-}
 
  
 onFileSelected(event: any) {
@@ -382,12 +351,6 @@ resetUploadForm() {
 }
 
 
-
-
-
-
-
-
 // Méthode pour déclencher l'upload de fichier
 triggerFileUpload(): void {
   const fileInput = document.getElementById('conventionUpload') as HTMLInputElement;
@@ -401,30 +364,6 @@ getSignedConvention(): any {
   return this.conventions.find(conv => conv.type === 'convention signée');
 }
 
-
-
-
-
-
-showCommentaire(commentaire: string) {
-  Swal.fire({
-    title: 'Commentaire ',
-     
-    text: commentaire,
-
-    confirmButtonText: 'X',
-    customClass: {
-      confirmButton: 'my-confirm-btn'
-    },
-  
-  });
-}
-getCommentaireTraite(conv: any): string {
-  if (!conv.TraitementDocuments) return 'Aucun commentaire';
-
-  const traitement = conv.TraitementDocuments.find((td: any) => td.action !== 'déposé');
-  return traitement?.commentaire || 'Aucun commentaire';
-}
 
 
 }

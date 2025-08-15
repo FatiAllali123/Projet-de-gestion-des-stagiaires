@@ -58,7 +58,6 @@ console.log(documentId);
         this.processing = false;
         this.commentaire = '';
         // Recharger la liste après traitement
-     
         this.loadUntreatedReports(this.currentUserId);
       },
       error: (err) => {

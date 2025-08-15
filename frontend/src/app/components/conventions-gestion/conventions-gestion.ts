@@ -16,7 +16,9 @@ import Swal from 'sweetalert2';
 
 
 export class ConventionsGestion implements OnInit {
+  
   activeTab: 'a-signer' | 'signees' = 'a-signer';
+
   candidaturesAttente: any[] = [];
   selectedFiles: {[key: number]: File} = {}; // Stockage des fichiers par candidature ID
   isLoading = false;
@@ -24,23 +26,22 @@ export class ConventionsGestion implements OnInit {
   message = '';
   messageType: 'success' | 'error' | null = null;
 
- showModal = false; // Ajouté pour gérer le modal
-   candidaturesAcceptees: any[] = [];
+  showModal = false; // pour gérer le modal
+  candidaturesAcceptees: any[] = [];
   conventions: any[] = [];
   selectedCandidature: any = null;
+  conventionsSignees: any[] = [];
 
-conventionsSignees: any[] = [];
-
-userRole: string = '';
- conventionsRH: any[] = []; // Pour les conventions à traiter par le RH
+  userRole: string = '';
+  conventionsRH: any[] = []; // Pour les conventions à traiter par le RH
   selectedConventionRH: any = null;
   commentaireRH: string = '';
 
 
-showSigneeModal = false;
-selectedConventionForSignee: any = null;
-signeeFile: File | null = null;
-signeeUploadProgress = 0;
+  showSigneeModal = false;
+  selectedConventionForSignee: any = null;
+  signeeFile: File | null = null;
+  signeeUploadProgress = 0;
   
   constructor(private documentService: DocumentService,
     private candidatureService: CandidatureService,
@@ -51,7 +52,7 @@ signeeUploadProgress = 0;
  ngOnInit(): void {
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
-        this.userRole = user.role; // Supposons que le rôle est dans la réponse
+        this.userRole = user.role; // Récupérer le rôle de l'utilisateur
         
         if (this.userRole === 'candidat') {
           this.loadCandidaturesAttente();
@@ -65,6 +66,7 @@ signeeUploadProgress = 0;
       error: (err) => console.error(err)
     });
   }
+  // Charger les conventions à signer pour le RH
   loadConventionsRH(): void {
     this.isLoading = true;
     this.documentService.getConventionsASignerRH().subscribe({
@@ -93,47 +95,6 @@ signeeUploadProgress = 0;
       }
     });
   }
-/*
-traiterConventionRH(convention: any, action: 'valider' | 'refuser'): void {
-  Swal.fire({
-    title: action === 'valider' ? 'Valider la convention' : 'Refuser la convention',
-    input: 'textarea',
-    inputPlaceholder: 'Écrivez un commentaire...',
-    showCancelButton: true,
-    confirmButtonText: action === 'valider' ? 'Valider' : 'Refuser',
-    cancelButtonText: 'Annuler',
-    confirmButtonColor: action === 'valider' ? '#4caf50' : '#f44336',
-    cancelButtonColor: '#9e9e9e',
-    preConfirm: (commentaire) => {
-      if (!commentaire.trim()) {
-        Swal.showValidationMessage('Le commentaire est obligatoire');
-        return false;
-      }
-      return commentaire;
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this.isLoading = true;
-      const commentaire = result.value;
-
-      this.documentService.processConvention(convention.id, action, commentaire).subscribe({
-        next: () => {
-          this.showMessage(
-            `Convention ${action === 'valider' ? 'validée' : 'refusée'} avec succès`,
-            'success'
-          );
-          this.loadConventionsRH();
-          this.isLoading = false;
-        },
-        error: (err) => {
-          console.error(err);
-          this.showMessage('Erreur lors du traitement de la convention', 'error');
-          this.isLoading = false;
-        }
-      });
-    }
-  });
-}*/
 
 
 traiterConventionRH(convention: any, action: 'valider' | 'refuser'): void {
@@ -141,11 +102,12 @@ traiterConventionRH(convention: any, action: 'valider' | 'refuser'): void {
     // Ouvrir directement le modal de dépôt de convention signée
     this.openSigneeModal(convention);
   } else {
-    // Pour le refus, garder l'ancien comportement
+    // Pour le refus, on garde l'ancien comportement
     this.processConventionAction(convention, action);
   }
 }
 
+// le modal de dépôt de convention signée
 private processConventionAction(convention: any, action: 'valider' | 'refuser'): void {
   Swal.fire({
     title: action === 'valider' ? 'Valider la convention' : 'Refuser la convention',
@@ -191,12 +153,7 @@ private processConventionAction(convention: any, action: 'valider' | 'refuser'):
 }
 
 
- 
-
-
-
-
-
+  // Charger les conventions signées a du candidat candidat
 loadConventionsSignees(): void {
     this.isLoading = true;
     this.authService.getCurrentUser().subscribe({
@@ -232,7 +189,7 @@ loadConventionsSignees(): void {
     });
   }
 
-  onFileSelected(event: any, candidatureId: number): void {
+onFileSelected(event: any, candidatureId: number): void {
     const file: File = event.target.files[0];
     if (file) {
       // Validation du fichier
@@ -243,7 +200,7 @@ loadConventionsSignees(): void {
     }
   }
 
-  validateFile(file: File): boolean {
+validateFile(file: File): boolean {
     const allowedTypes = ['application/pdf', 
                         'application/msword', 
                         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
@@ -261,7 +218,7 @@ loadConventionsSignees(): void {
     return true;
   }
 
-  uploadConvention(candidatureId: number): void {
+uploadConvention(candidatureId: number): void {
     const file = this.selectedFiles[candidatureId];
     if (!file) {
       this.showMessage('Veuillez sélectionner un fichier', 'error');

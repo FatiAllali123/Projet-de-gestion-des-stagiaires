@@ -17,8 +17,6 @@ app-nav-bar {
   height: 60px; 
 }
 
-
-
 /* Style pour la sidebar fixe */
 app-sidebar {
   position: fixed;

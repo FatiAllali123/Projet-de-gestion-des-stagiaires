@@ -131,21 +131,12 @@
 }
 
 
-
-
-
 .info-section p {
   margin: 0.4rem 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
-
-
-
-
-
-
 
 
 
@@ -215,7 +206,7 @@
   border-radius: 8px;
   margin: 8px 0;
   transition: all 0.3s ease;
-  padding: 12px 16px; /* ajout de padding pour respirer */
+  padding: 12px 16px; 
 }
 
 /* Infos empilées à côté de l’icône */
@@ -223,9 +214,9 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  flex-grow: 1; /* prendre l’espace disponible */
+  flex-grow: 1; 
   font-weight: 600;
-  color: #2d572c; /* vert foncé plus sympa */
+  color: #2d572c; 
 }
 
 /* Texte secondaire un peu plus clair */
@@ -347,7 +338,7 @@
 .convention-summary {
   display: flex;
   align-items: center;
-  gap: 20px; /* espace entre les éléments */
+  gap: 20px; 
   flex-wrap: nowrap;
 }
 
@@ -357,9 +348,8 @@
   color: #4a4a4a;
   white-space: nowrap;
   flex-shrink: 0;
-
-  
 }
+
 /* Conteneur des boutons à gauche */
 .upload-section-compact .left-buttons {
   display: flex;
@@ -384,9 +374,6 @@
 .document-btn[href*="attestation"] {
   background-color:#303f9f; 
 }
-
-
-
 
 /* Boutons carrés identiques */
 .upload-square-btn {
@@ -455,12 +442,9 @@
 .toggle-btn i {
   font-size: 1.3rem;
 }
-
 .other-rapports-list {
   margin-top: 1rem;
 }
-
-
 
 .view-btn {
   text-decoration: none;

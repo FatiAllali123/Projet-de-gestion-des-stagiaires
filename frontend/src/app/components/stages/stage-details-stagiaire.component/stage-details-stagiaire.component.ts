@@ -53,9 +53,6 @@ export class StageDetailsStagiaireComponent implements OnInit {
 
 
 
- showConventionsASigner = false;
- uploadingConvention = false;
-
   constructor(
     private stageService: StageService,
     private evaluationService: EvaluationService,
@@ -162,41 +159,9 @@ loadEvaluation() {
       });
     }
   }
-closeEvaluationView() {
-    this.showEvaluationView = false;
-  }
 
- onConventionFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedConventionFile = file;
-    }
-  }
 
-    // Upload de la convention
-  uploadConvention() {
-    if (!this.selectedConventionFile) return;
 
-    const formData = new FormData();
-    formData.append('file', this.selectedConventionFile);
-    formData.append('stage_id', this.stageId.toString());
-    formData.append('type', 'convention à signer');
-
-    this.documentService.uploadDocument(formData).subscribe({
-      next: (response) => {
-        console.log('Convention uploadée avec succès', response);
-        this.loadConventions(); // Recharger la liste
-        this.selectedConventionFile = null;
-        // Réinitialiser le champ de fichier
-        const fileInput = document.querySelector('#conventionFileInput') as HTMLInputElement;
-        if (fileInput) fileInput.value = '';
-      },
-      error: (err) => {
-        console.error('Erreur lors de l\'upload de la convention', err);
-        this.conventionError = err.error?.message || 'Erreur lors de l\'envoi de la convention';
-      }
-    });
-  }
 
 
 
@@ -248,13 +213,7 @@ checkJustificationStatus(absenceId: number) {
     }
   });
 }
-onFileSelected(event: any, absenceId: number) {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedFile = file;
-      this.selectedAbsenceId = absenceId;
-    }
-  }
+
 
 
   // Modifier la fonction uploadJustification existante
@@ -361,48 +320,6 @@ formatDate(date: string): string {
 
 
 
-toggleConventionsASigner() {
-  this.showConventionsASigner = !this.showConventionsASigner;
-}
-
-// Fonction pour déclencher l'upload de fichier
-triggerFileUpload(): void {
-  const fileInput = document.getElementById('conventionFileInput') as HTMLInputElement;
-  if (fileInput) {
-    fileInput.click();
-  }
-}
-
-// Fonction pour annuler l'upload de convention
-cancelConventionUpload(): void {
-  this.selectedConventionFile = null;
-  // Réinitialiser le champ de fichier
-  const fileInput = document.getElementById('conventionFileInput') as HTMLInputElement;
-  if (fileInput) {
-    fileInput.value = '';
-  }
-}
-
-// Fonction pour confirmer l'upload (identique à uploadConvention mais avec un nom cohérent)
-confirmUpload(): void {
-  this.uploadConvention();
-}
-
-// Fonction pour obtenir la convention signée
-getSignedConvention(): any {
-  return this.conventionSignee;
-}
-
-// Fonction pour obtenir les autres conventions (celles à signer)
-getOtherConventions(): any[] {
-  return this.conventionsASigner;
-}
-
-// Fonction pour basculer l'affichage des autres conventions
-toggleOtherConventions(): void {
-  this.showConventionsASigner = !this.showConventionsASigner;
-}
- 
 
 // Fonction pour vérifier s'il y a un rapport validé
 rapportValide(): any {

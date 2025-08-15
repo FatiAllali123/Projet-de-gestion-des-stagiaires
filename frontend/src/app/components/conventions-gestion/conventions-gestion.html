@@ -1,4 +1,4 @@
-<!-- conventions.component.html -->
+
  <br><br><br><br><br>
 <div class="conventions-container">
   <!-- En-tête commun -->
@@ -22,8 +22,6 @@
   </div>
 
 
-
-
  <!-- Contenu pour le RH -->
   <ng-container *ngIf="userRole === 'rh'">
     <br><br>
@@ -36,9 +34,9 @@
       </div>
 
      <div *ngIf="!isLoading && conventionsRH.length === 0" class="no-data">
-  <i class="fas fa-folder-open" style="color: #303f9f;"></i>
-  <span>Aucune convention à traiter pour le moment.</span>
-</div>
+      <i class="fas fa-folder-open" style="color: #303f9f;"></i>
+       <span>Aucune convention à traiter pour le moment.</span>
+     </div>
 
       <table *ngIf="!isLoading && conventionsRH.length > 0" class="conventions-table">
         <thead>
@@ -76,9 +74,9 @@
         </tbody>
       </table>
 
-
-      
     </div>
+
+
 <!-- Modal pour déposer la convention signée -->
 <div *ngIf="showSigneeModal" class="custom-modal">
   <div class="modal-content">
@@ -138,9 +136,9 @@
       </div>
 
      <div *ngIf="!isLoading && conventionsSignees.length === 0" class="no-data">
-  <i class="fas fa-file-signature" style="color: #303f9f;"></i>
-  <span>Aucune convention signée pour le moment.</span>
-</div>
+       <i class="fas fa-file-signature" style="color: #303f9f;"></i>
+        <span>Aucune convention signée pour le moment.</span>
+      </div>
 
       <table *ngIf="!isLoading && conventionsSignees.length > 0" class="conventions-table">
         <thead>
@@ -176,23 +174,12 @@
 
 
 
+<!-- Contenu pour le Stagiaire -->
+<ng-container *ngIf="userRole === 'candidat'">
 
-
-
-
-
-
-
-
-
-
-
-
- <ng-container *ngIf="userRole === 'candidat'">
   <!-- Onglet Conventions à Signer -->
   <div *ngIf="activeTab === 'a-signer'" class="tab-content">
    
-    
     <div *ngIf="isLoading && candidaturesAttente.length === 0" class="loading">
       Chargement en cours...
     </div>
@@ -243,8 +230,6 @@
         </div>
       </div>
     </div>
-    
-
      <br><hr><br>
      
 
@@ -385,7 +370,7 @@
     </table>
   </div>
 
-  </ng-container>
+</ng-container>
 
   
 </div>

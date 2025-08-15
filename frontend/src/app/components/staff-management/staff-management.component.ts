@@ -44,14 +44,7 @@ showCreateForm: boolean = false;
   ngOnInit() {
     this.loadStaff();
   }
-/*
-  loadStaff() {
-    this.utilisateurService.listStaffAccounts().subscribe({
-      next: (data) => this.staffList = data,
-      error: (err) => this.error = err.error?.message || 'Erreur de chargement'
-    });
-  }
-*/
+
 
 loadStaff() {
   console.log("role selectee ",this.selectedRole)
@@ -74,9 +67,6 @@ loadStaff() {
   onRoleFilterChange() {
     this.loadStaff();
   }
-
-
-
   createAccount() {
         if (this.staffForm.invalid) {
       // Marquer tous les champs comme touchés pour afficher les erreurs

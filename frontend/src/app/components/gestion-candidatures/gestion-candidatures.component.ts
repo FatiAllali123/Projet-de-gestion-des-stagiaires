@@ -11,6 +11,7 @@ import { ListeOffresComponent } from './liste-offres/liste-offres.component';
 import { EntretienModalComponent } from './entretien-modal/entretien-modal.component';
 import { NgClass } from '@angular/common';
 
+
 interface StageActifResponse {
   hasActiveStage: boolean;
   stages?: Array<{
@@ -23,7 +24,7 @@ interface StageActifResponse {
   message?: string;
 }
 
-// Ajoutez cette interface
+
 interface PropositionDates {
   id: number;
   date_debut_proposee: string;
@@ -47,8 +48,11 @@ interface PropositionDates {
 export class GestionCandidaturesComponent implements OnInit {
   @ViewChild('entretienModal') entretienModal!: EntretienModalComponent;
    @ViewChild('stageForm') stageForm!: NgForm;
-    errorMessage: string | null = null;
-  @Input() offreId!: number;
+   @Input() offreId!: number;
+   @Output() back = new EventEmitter<void>();
+
+  errorMessage: string | null = null;
+  
   offreDetails: any = null;
   candidatures: any[] = [];
   loading = true;
@@ -61,25 +65,22 @@ export class GestionCandidaturesComponent implements OnInit {
     date_fin: '',
     candidature_id: 0
   };
-  candidaturesWithStages: any[] = []; 
   loadingAction: number | null = null;
 
-
-
   showPropositionModal = false;
-showPropositionsList = false;
-propositionFormData = {
+  showPropositionsList = false;
+  propositionFormData = {
   date_debut_proposee: '',
   date_fin_proposee: '',
   commentaire: '',
   candidature_id: 0
 };
-propositions: PropositionDates[] = [];
-selectedCandidatureForPropositions: any;
+   propositions: PropositionDates[] = [];
+   selectedCandidatureForPropositions: any;
 
 
 
-@Output() back = new EventEmitter<void>();
+
   constructor(
     private stageService: StageService,
     private candidatureService: CandidatureService,
@@ -88,9 +89,10 @@ selectedCandidatureForPropositions: any;
   ) {}
 
 ngOnInit() {
-  console.log('ID de l’offre reçu :', this.offreId);
   this.loadData();
 }
+
+
 loadData() {
   console.log('Chargement des candidatures pour offre:', this.offreId);
   this.loading = true;
@@ -99,7 +101,7 @@ loadData() {
       console.log('Données reçues du backend:', data);
       this.offreDetails = data.offre;
       
-      // Utilisez directement les données du backend sans recharger les propositions
+      
       this.candidatures = data.candidatures;
       
       // Log pour chaque candidature
@@ -127,8 +129,6 @@ openEntretienModal(entretien?: any) {
 
 
 }
- 
-
 
 handlePlanifierEntretien(event: any) {
   this.errorMessage = null;
@@ -175,16 +175,8 @@ handleError(err: any) {
 }
 
 
- handleCreerStage(candidature: any) {
-    this.stageFormData = {
-      sujet_stage: '',
-      date_debut: '',
-      date_fin: '',
-      candidature_id: candidature.id
-    };
-    this.showStageModal = true;
-  }
- submitStageForm() {
+
+submitStageForm() {
     // Vérification supplémentaire côté TypeScript
     if (!this.stageForm.valid) {
       this.errorMessage = 'Veuillez remplir tous les champs obligatoires';
@@ -209,7 +201,7 @@ handleError(err: any) {
     });
   }
 
-  closeStageModal() {
+closeStageModal() {
     this.showStageModal = false;
   }
 
@@ -271,50 +263,6 @@ preselectionner(id: number) {
 }
 
 
-/*
-getActions(candidature: any): string[] {
-
-  const statut = candidature.statut_candidature;
-  console.log('Statut de la candidature:', statut);
-  const entretienRequis = this.offreDetails?.entretien_requis;
-  console.log('Entretien requis:', entretienRequis);
-  const entretien = candidature.Entretiens?.[0];
-
-  
-  if (!entretienRequis) {
-    // Pas d'entretien requis : afficher actions selon le statut
-    if (statut === 'En cours d\'execution') {
-      return ['Accepter', 'Refuser'];
-    } else {
-      // Statut accepté ou refusé ou autre, pas d'action possible
-      return [];
-    }
-  }
-
-  switch (statut) {
-    case 'En cours d\'execution':
-      return ['Presélectionner', 'Refuser'];
-    case 'Presélectionnée':
-      return ['Planifier entretien'];
-    case 'Entretien planifié':
-      if (!entretien) return [];
-      if (entretien.statut === 'Planifié') {
-        return ['Modifier entretien', 'Annuler entretien', 'Terminer entretien'];
-      }
-      if (entretien.statut === 'Passé') {
-        return ['Accepter', 'Refuser'];
-      }
-    
-      return [];
-      case 'Acceptée':
-       // Afficher "Créer Stage" seulement si aucun stage n'existe
-       return candidature.Stage ? [] : ['Creer Stage'];
-    
-    default:
-      return [];
-  }
-}
-*/
 handleCandidatureAction(event: { action: string, candidature: any }) {
   const { action, candidature } = event;
 
@@ -354,8 +302,6 @@ handleCandidatureAction(event: { action: string, candidature: any }) {
     }
   });
   break;
-
-// Modifiez le case 'Terminer entretien' dans handleCandidatureAction
 case 'Entretien est passée':
   this.errorMessage = null;
   this.entretienService.terminerEntretien(candidature.Entretiens[0].id).subscribe({
@@ -368,18 +314,17 @@ case 'Entretien est passée':
     }
   });
   break;
-      case 'Creer Stage':  
-     this.handleCreerStage(candidature);
-       break;
+      
   }
 }
- goBack() {
+
+goBack() {
     this.back.emit();
   }
 
 
 
-  isEntretienPast(candidature: any, action: string): boolean {
+isEntretienPast(candidature: any, action: string): boolean {
   const entretien = candidature.Entretiens?.[0];
   if (!entretien) return false; // pas d'entretien = pas disabled
 
@@ -441,8 +386,6 @@ submitPropositionForm() {
   });
 }
 
-
-
 closePropositionModal() {
   this.showPropositionModal = false;
 }
@@ -480,7 +423,7 @@ hasAcceptedProposition(candidature: any): boolean {
 
   console.log('Nombre de propositions:', candidature.PropositionsDates.length);
   
-  // Vérifiez chaque proposition individuellement
+  // Vérifie chaque proposition individuellement
   for (let i = 0; i < candidature.PropositionsDates.length; i++) {
     const proposition = candidature.PropositionsDates[i];
     console.log(`Proposition ${i}:`, proposition);
@@ -499,24 +442,17 @@ hasAcceptedProposition(candidature: any): boolean {
 }
 
 
-// Modifiez la méthode getActions
+//  méthode getActions
 getActions(candidature: any): string[] {
   const statut = candidature.statut_candidature;
   const entretienRequis = this.offreDetails?.entretien_requis;
   const entretien = candidature.Entretiens?.[0];
   const hasAcceptedProposition = this.hasAcceptedProposition(candidature);
   
-  console.log('=== DEBUG CANDIDATURE ===');
-  console.log('Candidature ID:', candidature.id);
-  console.log('Statut:', statut);
-  console.log('Entretien requis:', entretienRequis);
-  console.log('PropositionsDates:', candidature.PropositionsDates);
-  console.log('hasAcceptedProposition:', hasAcceptedProposition);
-  console.log('========================');
 
-  // PROBLÈME ICI : vous sortez trop tôt quand entretien_requis = false
+
   if (!entretienRequis) {
-    // Gérer aussi le cas "Acceptée" même quand pas d'entretien requis
+
     if (statut === 'En cours d\'execution') {
       return ['Accepter', 'Refuser'];
     } else if (statut === 'Acceptée' || statut === 'acceptee') {

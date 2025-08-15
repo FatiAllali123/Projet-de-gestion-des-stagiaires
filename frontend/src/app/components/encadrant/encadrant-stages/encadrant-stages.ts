@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './encadrant-stages.html',
   styleUrl: './encadrant-stages.css'
 })
+
 export class EncadrantStages implements OnInit {
   stages: any[] = [];
   encadrant : any = null ; 
@@ -23,8 +24,8 @@ export class EncadrantStages implements OnInit {
   userRole: string = '';
   
   stagesEnCours: any[] = [];
-stagesTermines: any[] = [];
-stagesPlanifies: any[] = [];
+  stagesTermines: any[] = [];
+  stagesPlanifies: any[] = [];
   statutOptions = [
     { value: '', label: 'Tous' },
     { value: 'Planifié', label: 'Planifiés' },
@@ -35,6 +36,7 @@ stagesPlanifies: any[] = [];
   @Input() encadrantId!: number;
   @Output() back = new EventEmitter<void>();
   @Output() stageSelected = new EventEmitter<number>();
+
   constructor(
     private router: Router,
     private utilisateurService: UtilisateurService,
@@ -69,7 +71,7 @@ stagesPlanifies: any[] = [];
 
   loadData() {
     this.loading = true;
- const statut = this.statutFilter || undefined; // si vide → undefined
+    const statut = this.statutFilter || undefined; // si vide => undefined
     if (this.userRole === 'admin' || this.userRole === 'rh') {
       this.stageService.getStagesEncadrant(this.encadrantId, this.statutFilter).subscribe({
         next: (stages) => {
@@ -104,10 +106,10 @@ stagesPlanifies: any[] = [];
     this.back.emit();
   }
 
-   showDetails(stageId: number) {
-  console.log('emit');
+  showDetails(stageId: number) {
+   console.log('emit');
    console.log('[EncadrantStages] selectStage()', stageId, 'role=', this.userRole);
-  this.stageSelected.emit(stageId);
+    this.stageSelected.emit(stageId);
 }
 
 

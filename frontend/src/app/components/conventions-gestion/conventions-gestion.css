@@ -9,8 +9,6 @@ max-width: 1200px;
    margin: 2rem auto;
   
 }
-
-
 .conventions-container h2 {
   color: #303f9f;
   margin-bottom: 1.5rem;
@@ -118,7 +116,6 @@ max-width: 1200px;
   background-color: #2a367e;
 }
 
-
 .btn-accept {
   background-color: #b7ddc1;
   color: rgb(2, 89, 2);
@@ -126,7 +123,7 @@ max-width: 1200px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  margin-right: 8px; /* Ajoutez cette ligne */
+  margin-right: 8px;
 }
 
 .btn-accept:hover {
@@ -140,7 +137,7 @@ max-width: 1200px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  /* Ou vous pourriez ajouter margin-left: 8px; ici à la place */
+
 }
 
 .btn-refuse:hover {
@@ -442,8 +439,6 @@ max-width: 1200px;
 }
 
 
-
-
 /* alerts */
 
 .no-data {
@@ -471,15 +466,11 @@ max-width: 1200px;
   font-size: 1rem;
 }
 
-/* Exemple pour rendre le message un peu plus vivant */
 .no-data:hover {
   background-color: #f1f3f5;
   border-color: #adb5bd;
   transition: all 0.3s ease;
 }
-
-
-
 
 
 .candidatures-list {
@@ -530,7 +521,6 @@ max-width: 1200px;
 
 /* Couleurs selon statut */
 .badge.acceptée { background-color: #d7f0e0;color:#16a34a }
-
 
 .candidature-info p {
   margin: 6px 0;

@@ -25,6 +25,7 @@ import {ConventionsComponent} from '../conventions.component/conventions.compone
 import {ConventionsGestion} from '../../components/conventions-gestion/conventions-gestion';
 import {Evaluation} from '../../components/evaluation/evaluation';
 import { RapportGestion } from '../rapport-gestion/rapport-gestion';
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -36,8 +37,8 @@ import { RapportGestion } from '../rapport-gestion/rapport-gestion';
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
-  userRole: string | null = null;
-  activeSection: string = '';
+userRole: string | null = null;
+activeSection: string = '';
 
 selectedOffreId: number | null = null;
 selectedEncadrantId: number | null = null;

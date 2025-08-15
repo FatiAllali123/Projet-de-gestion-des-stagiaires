@@ -99,7 +99,7 @@ export class Evaluation implements OnInit {
       },
       error: (err) => {
         console.error('Error creating evaluation', err);
-        // Gérer les erreurs ici (affichage message à l'utilisateur)
+        
       }
     });
   }
