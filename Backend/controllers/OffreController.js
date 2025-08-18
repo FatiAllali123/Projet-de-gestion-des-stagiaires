@@ -35,7 +35,7 @@ module.exports = {
     const offreId = req.params.id;
     const rh_id = req.user.userId;
     const nouvellesDonnees = req.body;
- console.log('Données reçues:', req.body); // Ajoutez ce log
+
     try {
       const offre = await Offre.findByPk(offreId);
       if (!offre) return res.status(404).json({ message: "Offre introuvable" });
@@ -86,7 +86,7 @@ module.exports = {
             titre: "Offre modifiée",
             message: message,
             type: "modification_offre",
-            lien_action: `/offres/${offreId}`,
+            lien_action: `mes-candidatures`,
             offre_id: offreId
           });
         }
@@ -103,58 +103,7 @@ module.exports = {
     }
   },
 
-// Fonction pour récupérer toutes les offres
-/*
-async getAllOffres(req, res) {
-  try {
-    const whereClause = {};
-    const includeClause = [];
-    
-    // Gestion des différents rôles
-    switch (req.user.role) {
-      case 'candidat':
-        // Candidat : seulement les offres actives
-        whereClause.statut_offre = 'actif';
-        break;
-        
-      case 'rh':
-        // RH : toutes SES offres (actives et inactives)
-        whereClause.rh_id = req.user.userId;
-        break;
-        
-      case 'admin':
-        // Admin : toutes les offres de tous les RH
-        // Pas de restriction dans le whereClause
-        // On peut inclure les infos du RH pour plus de contexte
-        includeClause.push({
-          model: Utilisateur,
-          as: 'Rh',
-          attributes: ['id', 'nom', 'prenom', 'email']
-        });
-        break;
-        
-      default:
-        // Pour les autres rôles (au cas où)
-        whereClause.statut_offre = 'actif';
-    }
-
-    const offres = await Offre.findAll({ 
-      where: whereClause,
-      include: includeClause,
-      order: [['created_at', 'DESC']] 
-    });
-
-    res.json(offres);
-  } catch (error) {
-    console.error('Erreur lors de la récupération des offres:', error);
-    res.status(500).json({ 
-      error: "Erreur lors de la récupération des offres",
-      details: error.message 
-    });
-  }
-},
-*/
-
+  // Fonction pour récupérer toutes les offres
 async getAllOffres(req, res) {
   try {
     const { statut, type, mode, dureeMin, dureeMax } = req.query;
@@ -212,7 +161,7 @@ async getAllOffres(req, res) {
     });
   }
 },
-// 
+
 async getAllActiveOffres(req, res) {
   try {
     const offres = await Offre.findAll({ 
@@ -228,7 +177,7 @@ async getAllActiveOffres(req, res) {
     });
   }
 },
-  // 
+  
 async toggleOffreStatus(req, res) {
   const { id } = req.params;
   const { action } = req.body; // 'activate' ou 'deactivate'

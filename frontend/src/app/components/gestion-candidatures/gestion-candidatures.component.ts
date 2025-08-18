@@ -77,9 +77,10 @@ export class GestionCandidaturesComponent implements OnInit {
 };
    propositions: PropositionDates[] = [];
    selectedCandidatureForPropositions: any;
+   isSubmittingProposition = false;
 
-
-
+   successMessage: string | null = null;
+   showSuccess = false;
 
   constructor(
     private stageService: StageService,
@@ -139,6 +140,7 @@ handlePlanifierEntretien(event: any) {
     // Modifier un entretien existant
     this.entretienService.modifierEntretien(entretienId, formData).subscribe({
       next: () => {
+         this.showSuccessMessage(isEdit ? "Entretien modifié avec succès !" : "Entretien planifié avec succès !");
         this.loadData();
          this.loadingAction = null; // Fin chargement
         this.entretienModal.close();
@@ -153,8 +155,14 @@ handlePlanifierEntretien(event: any) {
   } else {
     // Planifier un nouvel entretien
     this.entretienService.planifierEntretien(candidatureId, formData).subscribe({
-      next: () => {
-        this.loadData();
+      next: (res) => {
+        const index = this.candidatures.findIndex(c => c.id === candidatureId);
+         this.showSuccessMessage("Entretien planifié avec succès !");
+  if (index !== -1) {
+    this.candidatures[index].statut_candidature = "Entretien planifié";
+    this.candidatures[index].Entretiens = [res.entretien];
+  }
+
         this.entretienModal.close();
     
       },
@@ -176,41 +184,12 @@ handleError(err: any) {
 
 
 
-submitStageForm() {
-    // Vérification supplémentaire côté TypeScript
-    if (!this.stageForm.valid) {
-      this.errorMessage = 'Veuillez remplir tous les champs obligatoires';
-      return;
-    }
-
-    this.errorMessage = null;
-    this.stageService.creerStage(this.stageFormData).subscribe({
-      next: (res) => {
-        alert("Stage créé avec succès !");
-        this.loadData();
-        this.showStageModal = false;
-      },
-      error: (err) => {
-        console.error("Erreur lors de la création du stage :", err);
-        if (err.status === 400) {
-          this.errorMessage = err.error?.message || 'Données invalides pour la création du stage';
-        } else {
-          this.errorMessage = 'Une erreur est survenue lors de la création du stage';
-        }
-      }
-    });
-  }
-
-closeStageModal() {
-    this.showStageModal = false;
-  }
-
  accepter(id: number) {
     this.errorMessage = null;
      this.loadingAction = id;  // Début chargement
   this.candidatureService.accepterCandidature(id).subscribe({
     next: () => {
-      console.log('Candidature ${id} acceptée');
+      this.showSuccessMessage("Candidature acceptée avec succès !");
       this.loadData(); // recharge la liste
          this.loadingAction = null; // Fin chargement
     },
@@ -229,7 +208,7 @@ refuser(id: number) {
        this.loadingAction = id;  // Début chargement
   this.candidatureService.refuserCandidature(id).subscribe({
     next: () => {
-      console.log('Candidature ${id} refusée');
+        this.showSuccessMessage("Candidature refusée avec succès !");
       this.loadData();
            this.loadingAction = null; // Fin chargement
     },
@@ -248,7 +227,7 @@ preselectionner(id: number) {
     this.loadingAction = id;  // Début chargement
   this.candidatureService.preselectionnerCandidature(id).subscribe({
     next: () => {
-      console.log('Candidature ${id} préselectionnée');
+      this.showSuccessMessage("Candidature présélectionnée avec succès !");
       this.loadData();
        this.loadingAction = null; // Fin chargement
     },
@@ -293,22 +272,10 @@ handleCandidatureAction(event: { action: string, candidature: any }) {
     case 'Annuler entretien':
   this.errorMessage = null;
   this.entretienService.annulerEntretien(candidature.Entretiens[0].id).subscribe({
-    next: () => this.loadData(),
+    next: () => { this.loadData(),this.showSuccessMessage("Entretien annulé avec succès !");},
     error: (err) => {
       if (err.status === 400) {
         this.errorMessage = err.error?.message || 'Impossible d\'annuler cet entretien';
-      }
-      console.error(err);
-    }
-  });
-  break;
-case 'Entretien est passée':
-  this.errorMessage = null;
-  this.entretienService.terminerEntretien(candidature.Entretiens[0].id).subscribe({
-    next: () => this.loadData(),
-    error: (err) => {
-      if (err.status === 400) {
-        this.errorMessage = err.error?.message || 'Impossible de terminer cet entretien';
       }
       console.error(err);
     }
@@ -362,20 +329,20 @@ handleProposerPeriode(candidature: any) {
 
 submitPropositionForm() {
   this.errorMessage = null;
+   this.isSubmittingProposition = true;
 
-   console.log("FormData avant envoi :", this.propositionFormData);
-     this.propositionFormData.date_debut_proposee = new Date(this.propositionFormData.date_debut_proposee).toISOString().split('T')[0];
-  this.propositionFormData.date_fin_proposee = new Date(this.propositionFormData.date_fin_proposee).toISOString().split('T')[0];
-     console.log("FormData apres envoi :", this.propositionFormData);
     this.propositionFormData.date_debut_proposee = new Date(this.propositionFormData.date_debut_proposee).toISOString().split('T')[0];
   this.propositionFormData.date_fin_proposee = new Date(this.propositionFormData.date_fin_proposee).toISOString().split('T')[0];
   this.propositionService.proposerPeriode(this.propositionFormData).subscribe({
     next: (res) => {
-      alert("Période proposée avec succès !");
+       this.isSubmittingProposition = false;
+         this.showSuccessMessage("Période proposée avec succès !");
+ 
       this.loadData();
       this.showPropositionModal = false;
     },
     error: (err) => {
+       this.isSubmittingProposition =false;
       console.error("Erreur lors de la proposition de période :", err);
       if (err.status === 400) {
         this.errorMessage = err.error?.message || 'Données invalides pour la proposition de période';
@@ -477,7 +444,7 @@ getActions(candidature: any): string[] {
     case 'Entretien planifié':
       if (!entretien) return [];
       if (entretien.statut === 'Planifié') {
-        return ['Modifier entretien', 'Annuler entretien', 'Entretien est passée'];
+        return ['Modifier entretien', 'Annuler entretien', ];
       }
       if (entretien.statut === 'Passé') {
         return ['Accepter', 'Refuser'];
@@ -511,5 +478,16 @@ getAcceptedPeriod(candidature: any): string {
 }
 
 
+
+showSuccessMessage(message: string) {
+  this.successMessage = message;
+  this.showSuccess = true;
+  
+  // Masquer le message après 6 secondes
+  setTimeout(() => {
+    this.showSuccess = false;
+    this.successMessage = null;
+  }, 6000);
+}
 
 }  

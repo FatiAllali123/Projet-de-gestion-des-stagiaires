@@ -1001,3 +1001,8 @@ toggle-evaluation-btn,
 }
 
 
+.btn-action:disabled {
+ 
+  cursor: not-allowed;        /* curseur interdit */
+
+}

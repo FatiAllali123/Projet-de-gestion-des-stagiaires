@@ -9,42 +9,67 @@ const { Absence } = require('../models');
 const multer = require('multer');
 const upload = require('../middlewares/upload_document').single('file');
 const { Op } = require('sequelize');
-// 🔧 Utilitaire : Chemin relatif à partir du chemin absolu
+
+// Utilitaire : Chemin relatif à partir du chemin absolu
 const getRelativePath = (absolutePath) => {
   if (!absolutePath) return null;
   const normalizedPath = path.normalize(absolutePath).replace(/\\/g, '/');
   const index = normalizedPath.indexOf('/uploads/');
   return index !== -1 ? normalizedPath.substring(index + 1) : null;
 };
-
-// 🔧 Utilitaire : Supprimer un fichier s’il existe
+// Utilitaire : Supprimer un fichier s’il existe
 const deleteFile = (filePath) => {
   if (filePath && fs.existsSync(filePath)) {
     fs.unlink(filePath, err => err && console.error('Erreur suppression fichier:', err));
   }
 };
-
-// 🔁 Obtenir le RH à partir du document
+// Obtenir le RH à partir du document
 const getRhFromDocument = async (documentId) => {
-  const document = await Document.findByPk(documentId, {
-    include: {
-      model: Stage,
-      include: {
+  try {
+    // 1. Récupérer le document avec sa candidature
+    const document = await Document.findByPk(documentId, {
+      include: [{
         model: Candidature,
-        include: {
-          model: Offre,
-          include: {
-            model: Utilisateur,
-            attributes: ['id', 'nom', 'prenom', 'email']
-          }
-        }
-      }
-    }
-  });
-  return document?.Stage?.Candidature?.Offre?.Utilisateur || null;
-};
+        attributes: ['id', 'offre_id']
+      }]
+    });
 
-// 🔁 Obtenir l'encadrant depuis un document
+    if (!document?.Candidature) {
+      console.log('Aucune candidature associée au document');
+      return null;
+    }
+
+    // 2. Récupérer l'offre associée à la candidature
+    const offre = await Offre.findByPk(document.Candidature.offre_id, {
+      attributes: ['id', 'rh_id'] // On récupère seulement l'ID du RH
+    });
+
+    if (!offre?.rh_id) {
+      console.log('Aucun RH associé à cette offre');
+      return null;
+    }
+
+    // 3. Vérifier que l'utilisateur est bien un RH
+    const rh = await Utilisateur.findOne({
+      where: {
+        id: offre.rh_id,
+        role: 'rh' // On vérifie le rôle
+      },
+      attributes: ['id', 'nom', 'prenom', 'email']
+    });
+
+    if (!rh) {
+      console.log('L\'utilisateur RH n\'existe pas ou n\'a pas le bon rôle');
+      return null;
+    }
+
+    return rh;
+  } catch (error) {
+    console.error('Erreur dans getRhFromDocument:', error);
+    return null;
+  }
+};
+//Obtenir l'encadrant depuis un document
 const getEncadrantFromDocument = async (documentId) => {
   const document = await Document.findByPk(documentId, {
     include: {
@@ -59,7 +84,7 @@ const getEncadrantFromDocument = async (documentId) => {
   return document?.Stage?.Encadrant || null;
 };
 
-// 🔁 Obtenir le stagiaire (candidat) depuis un document
+// Obtenir le stagiaire (candidat) depuis un document
 const getCandidatFromDocument = async (documentId) => {
   const document = await Document.findByPk(documentId, {
     include: {
@@ -129,7 +154,7 @@ const uploadDocument = async (req, res) => {
       statut: 'déposé',
       absence_id: type === "justificatif d'absence" ? absence_id : null
     };
-
+    
     // Pour les conventions à signer, on lie à la candidature
     if (type === 'convention à signer') {
       documentData.candidature_id = candidature_id;
@@ -155,16 +180,28 @@ const uploadDocument = async (req, res) => {
     let cibleId = null;
     let titre = '';
     let message = '';
-    let lien_action = `/documents/${document.id}`;
     let typeNotif = 'document';
 
     switch (type) {
       case 'convention à signer':
+
         const rh = await getRhFromDocument(document.id);
+       
         if (rh) {
+          
           cibleId = rh.id;
           titre = 'Convention à signer déposée';
           message = 'Une convention a été déposée et nécessite votre signature.';
+          lien_action = `cnv2`;
+           await creerNotification({
+         utilisateur_id: cibleId,
+          titre,
+          message,
+         type: typeNotif,
+         lien_action,
+         candidature_id,        
+         document_id: document.id
+    });
         }
         break;
 
@@ -236,7 +273,7 @@ const uploadDocument = async (req, res) => {
     titre = 'Stage créé';
     message = `Un stage a été créé pour vous : ${candidature.Offre.titre}`;
     typeNotif = 'stage';
-    lien_action = `/stagiaire/mes-stages/${stage.id}`;
+    lien_action = `mes-stages`;
 
     await creerNotification({
       utilisateur_id: cibleId,
@@ -254,6 +291,7 @@ const uploadDocument = async (req, res) => {
           cibleId = encadrant.id;
           titre = 'Nouveau justificatif d\'absence';
           message = 'Un justificatif d\'absence a été soumis par le stagiaire.';
+          lien_action = `mes-stages-encadrant`;
           await Absence.update(
             { is_justified: false },
             { where: { id: absence_id } }
@@ -267,6 +305,7 @@ const uploadDocument = async (req, res) => {
           cibleId = encadrantRapport.id;
           titre = 'Nouveau rapport';
           message = 'Un rapport a été soumis par le stagiaire.';
+          lien_action = `rapports`;
         }
         break;
 
@@ -275,7 +314,7 @@ const uploadDocument = async (req, res) => {
         break;
     }
 
-    if (cibleId) {
+    if (cibleId && type!=='convention à signer') {
       await creerNotification({
         utilisateur_id: cibleId,
         titre,
@@ -310,30 +349,10 @@ const uploadDocument = async (req, res) => {
 };
 
 
-// Route pour visualiser un document
-const viewDocument = async (req, res) => {
-  try {
-    const document = await Document.findByPk(req.params.id);
-    if (!document) {
-      return res.status(404).json({ message: "Document introuvable." });
-    }
-
-    const absolutePath = path.join(__dirname, '..', document.lien);
-    if (!fs.existsSync(absolutePath)) {
-      return res.status(404).json({ message: "Fichier non trouvé sur le serveur." });
-    }
-
-    res.sendFile(absolutePath);
-  } catch (error) {
-    console.error("Erreur consultation document :", error);
-    res.status(500).json({ message: "Erreur serveur.", error: error.message });
-  }
-};
 
 
 
 // Gestion de justifictif 
-
 const traiterJustificatif = async (req, res) => {
   try {
         // Vérification cruciale de l'authentification
@@ -385,11 +404,11 @@ const traiterJustificatif = async (req, res) => {
     if (action === 'accepter') {
       newStatus = 'accepté';
       isJustified = true;
-      notificationMessage = "Votre justificatif d'absence a été accepté.";
+      notificationMessage = `Votre justificatif d'absence pour le ${document.absence.date_absence} a été accepté.`;
     } else if (action === 'refuser') {
       newStatus = 'refusé';
       isJustified = false;
-      notificationMessage = "Votre justificatif d'absence a été refusé.";
+       notificationMessage = `Votre justificatif d'absence pour le ${document.absence.date_absence} a été refusé.`;
     } else {
       return res.status(400).json({
         success: false,
@@ -427,7 +446,7 @@ const traiterJustificatif = async (req, res) => {
         titre: `Justificatif d\'absence ${newStatus}`,
         message: notificationMessage,
         type: 'document',
-        lien_action: `/documents/${document.id}`,
+        lien_action: `mes-stages`,
         stage_id: document.stage_id,
         document_id: document.id,
        
@@ -598,41 +617,9 @@ async function getJustificatifForAbsence(req, res) {
 
 
 
-/*
-// gst Convention a signer d'apres le stage cad la candidature a donne lieu a stage et on veut aussi voir les conventions a signer d'apres le stage 
-const getConventionsASigner = async (req, res) => {
-  try {
-    const { stage_id } = req.params;
-    
-    const conventions = await Document.findAll({
-      where: { 
-        stage_id,
-        type: 'convention à signer',
-        statut: ['déposé', 'accepté', 'refusé'] // Inclure tous les statuts
-      },
-      include: [{
-        model: TraitementDocument,
-        as: 'TraitementDocuments',
-        required: false,
-        order: [['date_traitement', 'DESC']] // Pour avoir le dernier traitement en premier
-      }],
-      order: [['date_depot', 'DESC']] // Trier par date de dépôt
-    });
 
-    res.status(200).json({
-      success: true,
-      conventions
-    });
-  } catch (error) {
-    console.error('Erreur récupération conventions à signer:', error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-      error: error.message
-    });
-  }
-};
-*/
+// Conventions
+
 const getConventionsASigner = async (req, res) => {
   try {
     const { stage_id } = req.params;
@@ -735,68 +722,6 @@ const hasConventionSignee = async (req, res) => {
     });
   }
 };
-/*
-const traiterConvention = async (req, res) => {
-  try {
-    const { document_id } = req.params;
-    const { action, commentaire } = req.body;
-    const userId = req.user.userId;
-
-    const document = await Document.findByPk(document_id);
-    if (!document) {
-      return res.status(404).json({ 
-        success: false,
-        message: "Document non trouvé." 
-      });
-    }
-
-    // Ne changez plus le type du document!
-    let newStatus;
-    if (action === 'valider') {
-      newStatus = 'accepté'; // Gardez la cohérence avec vos autres statuts
-    } else if (action === 'refuser') {
-      newStatus = 'refusé';
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: "Action invalide."
-      });
-    }
-
-    // Mettre à jour seulement le statut
-    await document.update({ 
-      statut: newStatus
-      // Ne modifiez pas le type ici!
-    });
-
-    // Enregistrer le traitement
-    const traitement = await TraitementDocument.create({
-      action: newStatus,
-      date_traitement: new Date(),
-      document_id: document.id,
-      acteur_id: userId,
-      commentaire: commentaire || null
-    });
-
-    res.status(200).json({
-      success: true,
-      message: `Convention ${newStatus} avec succès.`,
-      document: {
-        ...document.toJSON(),
-        TraitementDocuments: [traitement] // Inclure le traitement dans la réponse
-      }
-    });
-
-  } catch (error) {
-    console.error('Erreur traitement convention:', error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-      error: error.message
-    });
-  }
-};*/
-
 const traiterConvention = async (req, res) => {
   try {
     const { document_id } = req.params;
@@ -886,43 +811,6 @@ const traiterConvention = async (req, res) => {
     });
   }
 };
-
-// cad get les conventions a signer qui sont accepte ou refsue d'apres le stage
-/*
-const getConventionsTraitees = async (req, res) => {
-  try {
-    const { stage_id } = req.params;
-    
-    const conventions = await Document.findAll({
-      where: { 
-        stage_id,
-        type: 'convention à signer',
-        statut: ['accepté', 'refusé'] // Cherche les deux statuts
-      },
-      include: [{
-        model: TraitementDocument,
-        as: 'TraitementDocuments',
-        required: true,
-        order: [['date_traitement', 'DESC']] // Pour avoir le dernier traitement en premier
-      }]
-    });
-
-    res.status(200).json({
-      success: true,
-      conventions,
-      
-    });
- 
-  } catch (error) {
-    console.error('Erreur récupération conventions traitées:', error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-      error: error.message
-    });
-  }
-};
-*/
 const getConventionsTraitees = async (req, res) => {
   try {
     const { stage_id } = req.params;
@@ -966,44 +854,6 @@ const getConventionsTraitees = async (req, res) => {
     });
   }
 };
-
-/*
-const getAllConventions = async (req, res) => {
-  try {
-    const { stage_id } = req.params;
-    
-    const conventions = await Document.findAll({
-      where: { 
-        stage_id,
-        [Op.or]: [
-          { type: 'convention à signer' },
-          { type: 'convention signée' }
-        ]
-      },
-      include: [{
-        model: TraitementDocument,
-        as: 'TraitementDocuments',
-        required: false,
-        order: [['date_traitement', 'DESC']]
-      }],
-      order: [['date_depot', 'DESC']]
-    });
-
-    res.status(200).json({
-      success: true,
-      conventions
-    });
-  } catch (error) {
-    console.error('Erreur récupération conventions:', error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-      error: error.message
-    });
-  }
-};
-*/
-
 const getAllConventions = async (req, res) => {
   try {
     const { stage_id } = req.params;
@@ -1054,7 +904,6 @@ const getAllConventions = async (req, res) => {
     });
   }
 };
-
 // méthode pour récupérer les conventosn a signer qui sont traites ou pas encore à partir de candidature uniquement 
 const getConventionsASignerByCandidature = async (req, res) => {
   try {
@@ -1154,8 +1003,6 @@ const getConventionsTraiteesByCandidature = async (req, res) => {
     });
   }
 };
-
-// Dans documentController.js
 const getConventionsSigneesByCandidat = async (req, res) => {
   try {
     const { candidatId } = req.params;
@@ -1199,8 +1046,6 @@ const getConventionsSigneesByCandidat = async (req, res) => {
     });
   }
 };
-
-
 // Pour le RH - Conventions à signer
 const getConventionsASignerRH = async (req, res) => {
   try {
@@ -1247,7 +1092,6 @@ const getConventionsASignerRH = async (req, res) => {
     });
   }
 };
-
 // Pour le RH - Conventions signées
 const getConventionsSigneesRH = async (req, res) => {
   try {
@@ -1304,406 +1148,6 @@ const getConventionsSigneesRH = async (req, res) => {
     });
   }
 };
-
-
-
-
-// Gst rapport 
-const getRapportsByStage = async (req, res) => {
-  try {
-    const { stage_id } = req.params;
-    
-    const rapports = await Document.findAll({
-      where: { 
-        stage_id,
-        type: 'rapport'
-      },
-      include: [{
-        model: TraitementDocument,
-        include: [Utilisateur]
-      }]
-    });
-
-    res.status(200).json({
-      success: true,
-      rapports
-    });
-  } catch (error) {
-    console.error('Erreur récupération rapports:', error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-      error: error.message
-    });
-  }
-};
-const getRapportValide = async (req, res) => {
-  try {
-    const { stage_id } = req.params;
-    
-    const rapport = await Document.findOne({
-      where: { 
-        stage_id,
-        type: 'rapport',
-        statut: 'accepté'
-      },
-      include: [{
-        model: TraitementDocument,
-        include: [Utilisateur]
-      }]
-    });
-
-    if (!rapport) {
-      return res.status(404).json({
-        success: false,
-        message: "Aucun rapport validé trouvé"
-      });
-    }
-
-    // Trouver le traitement avec action "accepté"
-    const traitement_valide = rapport.TraitementDocuments.find(td => td.action === 'accepté');
-
-    res.status(200).json({
-      success: true,
-      rapport: {
-        ...rapport.toJSON(),
-        traitement_valide  // ← ajouté ici
-      }
-    });
-  } catch (error) {
-    console.error('Erreur récupération rapport validé:', error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-      error: error.message
-    });
-  }
-};
-
-const hasRapportValide = async (req, res) => {
-  try {
-    const { stage_id } = req.params;
-    
-    const count = await Document.count({
-      where: { 
-        stage_id,
-        type: 'rapport',
-        statut: 'accepté'
-      }
-    });
-
-    res.status(200).json({
-      success: true,
-      hasValidRapport: count > 0
-    });
-  } catch (error) {
-    console.error('Erreur vérification rapport validé:', error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-      error: error.message
-    });
-  }
-};
-const traiterRapport = async (req, res) => {
-  try {
-    const { document_id } = req.params;
-    const { action, commentaire } = req.body; // 'accepter' ou 'refuser'
-    const userId = req.user.userId;
-
-    // Vérifier que le document existe et est un rapport
-    const document = await Document.findByPk(document_id);
-   
-    if (!document || document.type !== 'rapport') {
-      return res.status(404).json({ 
-        success: false,
-        message: `Rapport non trouvé.`
-      });
-    }
-   console.log(document.id);
-    // Vérifier le statut actuel
-    if (document.statut !== 'déposé') {
-      return res.status(400).json({
-        success: false,
-        message: "Ce rapport a déjà été traité."
-      });
-    }
-
-    // Déterminer le nouveau statut
-    let newStatus, notificationMessage;
-    if (action === 'accepter') {
-      newStatus = 'accepté';
-      notificationMessage = "Votre rapport a été accepté.";
-    } else if (action === 'refuser') {
-      newStatus = 'refusé';
-      notificationMessage = "Votre rapport a été refusé.";
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: "Action invalide. Choisissez 'accepter' ou 'refuser'."
-      });
-    }
-
-    // Mettre à jour le document
-    await document.update({ statut: newStatus });
-
-    // Enregistrer le traitement
-    await TraitementDocument.create({
-      action: newStatus,
-      date_traitement: new Date(),
-      document_id: document.id,
-      acteur_id: userId,
-      commentaire: commentaire || null
-    });
-
-    // Envoyer notification au stagiaire
-    const stagiaire = await getCandidatFromDocument(document.id);
-    if (stagiaire) {
-      await creerNotification({
-        utilisateur_id: stagiaire.id,
-        titre: `Rapport ${newStatus}`,
-        message: notificationMessage,
-        type: 'document',
-        lien_action: `/documents/${document.id}`,
-        stage_id: document.stage_id,
-        document_id: document.id
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: `Rapport ${newStatus} avec succès.`,
-      document: {
-        id: document.id,
-        statut: newStatus,
-        type: document.type,
-        stage_id: document.stage_id
-      }
-    });
-
-  } catch (error) {
-    console.error('Erreur traitement rapport:', error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-      error: error.message
-    });
-  }
-};
-// Récupère tous les rapports non traités pour un encadrant
-const getUntreatedReports = async (req, res) => {
-  try {
-    const encadrantId = req.params.encadrantId;
-    console.log("encadrant conn : ",encadrantId);
-    
-    const rapports = await Document.findAll({
-      where: {
-        type: 'rapport',
-        statut: 'déposé'
-      },
-      include: [{
-        model: Stage,
-        where: { encadrant_id: encadrantId },
-        include: [{
-          model: Utilisateur,
-          as: 'Stagiaire'
-        }]
-      }, {
-        model: TraitementDocument
-      }]
-    });
-
-    res.json({ rapports });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Erreur lors de la récupération des rapports' });
-  }
-};
-
-
-
-
-
-
-
-// Gst Attestation
-// Vérifier si une attestation existe pour un stage
-const hasAttestationStage = async (req, res) => {
-  try {
-    const { stage_id } = req.params;
-    
-    const count = await Document.count({
-      where: { 
-        stage_id,
-        type: 'attestation stage'
-      }
-    });
-
-    res.status(200).json({
-      success: true,
-      hasAttestation: count > 0
-    });
-  } catch (error) {
-    console.error('Erreur vérification attestation:', error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-      error: error.message
-    });
-  }
-};
-
-// Récupérer l'attestation d'un stage
-const getAttestationStage = async (req, res) => {
-  try {
-    const { stage_id } = req.params;
-    
-    const attestation = await Document.findOne({
-      where: { 
-        stage_id,
-        type: 'attestation stage'
-      }
-    });
-
-    if (!attestation) {
-      return res.status(404).json({
-        success: false,
-        message: "Aucune attestation trouvée pour ce stage."
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      attestation
-    });
-  } catch (error) {
-    console.error('Erreur récupération attestation:', error);
-    res.status(500).json({
-      success: false,
-      message: "Erreur serveur",
-      error: error.message
-    });
-  }
-};
-
-
-
-
-async function genererAttestation(req, res) {
-  const { stage_id } = req.body;
-  const userId = req.user.userId;
-
-  try {
-    // Récupérer le stage + stagiaire + encadrant
-    const stage = await Stage.findByPk(stage_id, {
-      include: [
-        { model: Utilisateur, as: 'Stagiaire', attributes: ['id', 'nom', 'prenom'] },
-        { model: Utilisateur, as: 'Encadrant', attributes: ['id', 'nom', 'prenom', 'specialite_encadrant'] },
-        {
-          model: Candidature,
-          include: [{
-            model: Offre,
-            include: [{
-              model: Utilisateur,
-              attributes: ['id', 'nom', 'prenom']
-            }]
-          }]
-        }
-      ]
-    });
-    if (!stage) return res.status(404).json({ message: 'Stage non trouvé.' });
-
-
-
-    // Vérifier l'existence d'un rapport valide (statut 'accepté') pour ce stage
-    const rapportValide = await Document.findOne({
-      where: { stage_id, type: 'rapport', statut: 'accepté' }
-    });
-
-    if (!rapportValide) {
-      return res.status(400).json({ message: 'Impossible de générer l\'attestation : aucun rapport validé trouvé pour ce stage.' });
-    }
-
-    // Vérification attestation existante
-    const exists = await Document.count({ where: { stage_id, type: 'attestation stage' } });
-    if (exists) return res.status(400).json({ message: 'Attestation déjà générée.' });
-
-    // Préparer le chemin
-    const uploadDir = path.join(__dirname, '../uploads/attestation stage');
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-    const filename = `attestation_${stage_id}_${Date.now()}.pdf`;
-    const filePath = path.join(uploadDir, filename);
-    const relPath = getRelativePath(filePath);
-
-    // Générer le PDF
-    const doc = new PDFDocument({ margin: 50, size: 'A4' });
-    const out = fs.createWriteStream(filePath);
-    doc.pipe(out);
-
-    // Mise en page via fonction externe
-    drawAttestation(doc, {
-      stagiaire: stage.Stagiaire,
-      encadrant: stage.Encadrant,
-      stage: stage,
-      rh: stage.Candidature.Offre.Utilisateur // Accès au RH via les associations
-    });
-
-    doc.end();
-    await new Promise(r => out.on('finish', r));
-
-    // Sauvegarde base
-    const document = await Document.create({
-      type: 'attestation stage',
-      lien: relPath,
-      date_depot: new Date(),
-      statut: 'généré',
-      stage_id
-    });
-    await TraitementDocument.create({
-      action: 'généré',
-      date_traitement: new Date(),
-      document_id: document.id,
-      acteur_id: userId
-    });
-
-    // Notification stagiaire
-    await creerNotification({
-      utilisateur_id: stage.Stagiaire.id,
-      titre: 'Attestation disponible',
-      message: 'Votre attestation de stage est prête.',
-      type: 'document',
-      lien_action: `/documents/${document.id}`,
-      stage_id,
-      document_id: document.id
-    });
-
-    res.status(201).json({
-      message: 'Attestation générée.',
-      document: { id: document.id, lien: relPath }
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Erreur serveur.', error: err.message });
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Récupérer les candidatures en attente de convention (pour la section "Envoyer")
 const getCandidaturesAttenteConvention = async (req, res) => {
   try {
@@ -1852,31 +1296,421 @@ const getConventionsCandidat = async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
+
+// Gst rapport 
+const getRapportsByStage = async (req, res) => {
+  try {
+    const { stage_id } = req.params;
+    
+    const rapports = await Document.findAll({
+      where: { 
+        stage_id,
+        type: 'rapport'
+      },
+      include: [{
+        model: TraitementDocument,
+        include: [Utilisateur]
+      }]
+    });
+
+    res.status(200).json({
+      success: true,
+      rapports
+    });
+  } catch (error) {
+    console.error('Erreur récupération rapports:', error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
+      error: error.message
+    });
+  }
+};
+const getRapportValide = async (req, res) => {
+  try {
+    const { stage_id } = req.params;
+    
+    const rapport = await Document.findOne({
+      where: { 
+        stage_id,
+        type: 'rapport',
+        statut: 'accepté'
+      },
+      include: [{
+        model: TraitementDocument,
+        include: [Utilisateur]
+      }]
+    });
+
+    if (!rapport) {
+      return res.status(404).json({
+        success: false,
+        message: "Aucun rapport validé trouvé"
+      });
+    }
+
+    // Trouver le traitement avec action "accepté"
+    const traitement_valide = rapport.TraitementDocuments.find(td => td.action === 'accepté');
+
+    res.status(200).json({
+      success: true,
+      rapport: {
+        ...rapport.toJSON(),
+        traitement_valide  // ← ajouté ici
+      }
+    });
+  } catch (error) {
+    console.error('Erreur récupération rapport validé:', error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
+      error: error.message
+    });
+  }
+};
+const hasRapportValide = async (req, res) => {
+  try {
+    const { stage_id } = req.params;
+    
+    const count = await Document.count({
+      where: { 
+        stage_id,
+        type: 'rapport',
+        statut: 'accepté'
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      hasValidRapport: count > 0
+    });
+  } catch (error) {
+    console.error('Erreur vérification rapport validé:', error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
+      error: error.message
+    });
+  }
+};
+const traiterRapport = async (req, res) => {
+  try {
+    const { document_id } = req.params;
+    const { action, commentaire } = req.body; // 'accepter' ou 'refuser'
+    const userId = req.user.userId;
+
+    // Vérifier que le document existe et est un rapport
+    const document = await Document.findByPk(document_id);
+   
+    if (!document || document.type !== 'rapport') {
+      return res.status(404).json({ 
+        success: false,
+        message: `Rapport non trouvé.`
+      });
+    }
+   console.log(document.id);
+    // Vérifier le statut actuel
+    if (document.statut !== 'déposé') {
+      return res.status(400).json({
+        success: false,
+        message: "Ce rapport a déjà été traité."
+      });
+    }
+
+    // Déterminer le nouveau statut
+    let newStatus, notificationMessage;
+    if (action === 'accepter') {
+      newStatus = 'accepté';
+      notificationMessage = "Votre rapport a été accepté.";
+    } else if (action === 'refuser') {
+      newStatus = 'refusé';
+      notificationMessage = "Votre rapport a été refusé.";
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Action invalide. Choisissez 'accepter' ou 'refuser'."
+      });
+    }
+
+    // Mettre à jour le document
+    await document.update({ statut: newStatus });
+
+    // Enregistrer le traitement
+    await TraitementDocument.create({
+      action: newStatus,
+      date_traitement: new Date(),
+      document_id: document.id,
+      acteur_id: userId,
+      commentaire: commentaire || null
+    });
+
+    // Envoyer notification au stagiaire
+    const stagiaire = await getCandidatFromDocument(document.id);
+    if (stagiaire) {
+      await creerNotification({
+        utilisateur_id: stagiaire.id,
+        titre: `Rapport ${newStatus}`,
+        message: notificationMessage,
+        type: 'document',
+        lien_action: `mes-stages`,
+        stage_id: document.stage_id,
+        document_id: document.id
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Rapport ${newStatus} avec succès.`,
+      document: {
+        id: document.id,
+        statut: newStatus,
+        type: document.type,
+        stage_id: document.stage_id
+      }
+    });
+
+  } catch (error) {
+    console.error('Erreur traitement rapport:', error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
+      error: error.message
+    });
+  }
+};
+// Récupère tous les rapports non traités pour un encadrant
+const getUntreatedReports = async (req, res) => {
+  try {
+    const encadrantId = req.params.encadrantId;
+    console.log("encadrant conn : ",encadrantId);
+    
+    const rapports = await Document.findAll({
+      where: {
+        type: 'rapport',
+        statut: 'déposé'
+      },
+      include: [{
+        model: Stage,
+        where: { encadrant_id: encadrantId },
+        include: [{
+          model: Utilisateur,
+          as: 'Stagiaire'
+        }]
+      }, {
+        model: TraitementDocument
+      }]
+    });
+
+    res.json({ rapports });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des rapports' });
+  }
+};
+
+
+
+
+
+
+
+
+// Gst Attestation
+// Vérifier si une attestation existe pour un stage
+const hasAttestationStage = async (req, res) => {
+  try {
+    const { stage_id } = req.params;
+    
+    const count = await Document.count({
+      where: { 
+        stage_id,
+        type: 'attestation stage'
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      hasAttestation: count > 0
+    });
+  } catch (error) {
+    console.error('Erreur vérification attestation:', error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
+      error: error.message
+    });
+  }
+};
+// Récupérer l'attestation d'un stage
+const getAttestationStage = async (req, res) => {
+  try {
+    const { stage_id } = req.params;
+    
+    const attestation = await Document.findOne({
+      where: { 
+        stage_id,
+        type: 'attestation stage'
+      }
+    });
+
+    if (!attestation) {
+      return res.status(404).json({
+        success: false,
+        message: "Aucune attestation trouvée pour ce stage."
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      attestation
+    });
+  } catch (error) {
+    console.error('Erreur récupération attestation:', error);
+    res.status(500).json({
+      success: false,
+      message: "Erreur serveur",
+      error: error.message
+    });
+  }
+};
+
+async function genererAttestation(req, res) {
+  const { stage_id } = req.body;
+  const userId = req.user.userId;
+
+  try {
+    // Récupérer le stage + stagiaire + encadrant
+    const stage = await Stage.findByPk(stage_id, {
+      include: [
+        { model: Utilisateur, as: 'Stagiaire', attributes: ['id', 'nom', 'prenom'] },
+        { model: Utilisateur, as: 'Encadrant', attributes: ['id', 'nom', 'prenom', 'specialite_encadrant'] },
+        {
+          model: Candidature,
+          include: [{
+            model: Offre,
+            include: [{
+              model: Utilisateur,
+              attributes: ['id', 'nom', 'prenom']
+            }]
+          }]
+        }
+      ]
+    });
+    if (!stage) return res.status(404).json({ message: 'Stage non trouvé.' });
+
+
+
+    // Vérifier l'existence d'un rapport valide (statut 'accepté') pour ce stage
+    const rapportValide = await Document.findOne({
+      where: { stage_id, type: 'rapport', statut: 'accepté' }
+    });
+
+    if (!rapportValide) {
+      return res.status(400).json({ message: 'Impossible de générer l\'attestation : aucun rapport validé trouvé pour ce stage.' });
+    }
+
+    // Vérification attestation existante
+    const exists = await Document.count({ where: { stage_id, type: 'attestation stage' } });
+    if (exists) return res.status(400).json({ message: 'Attestation déjà générée.' });
+
+    // Préparer le chemin
+    const uploadDir = path.join(__dirname, '../uploads/attestation stage');
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    const filename = `attestation_${stage_id}_${Date.now()}.pdf`;
+    const filePath = path.join(uploadDir, filename);
+    const relPath = getRelativePath(filePath);
+
+    // Générer le PDF
+    const doc = new PDFDocument({ margin: 50, size: 'A4' });
+    const out = fs.createWriteStream(filePath);
+    doc.pipe(out);
+
+    // Mise en page via fonction externe
+    drawAttestation(doc, {
+      stagiaire: stage.Stagiaire,
+      encadrant: stage.Encadrant,
+      stage: stage,
+      rh: stage.Candidature.Offre.Utilisateur // Accès au RH via les associations
+    });
+
+    doc.end();
+    await new Promise(r => out.on('finish', r));
+
+    // Sauvegarde base
+    const document = await Document.create({
+      type: 'attestation stage',
+      lien: relPath,
+      date_depot: new Date(),
+      statut: 'généré',
+      stage_id
+    });
+    await TraitementDocument.create({
+      action: 'généré',
+      date_traitement: new Date(),
+      document_id: document.id,
+      acteur_id: userId
+    });
+
+    // Notification stagiaire
+    await creerNotification({
+      utilisateur_id: stage.Stagiaire.id,
+      titre: 'Attestation disponible',
+      message: 'Votre attestation de stage est prête.',
+      type: 'document',
+      lien_action: `mes-stages`,
+      stage_id,
+      document_id: document.id
+    });
+
+    res.status(201).json({
+      message: 'Attestation générée.',
+      document: { id: document.id, lien: relPath }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur serveur.', error: err.message });
+  }
+}
+
+
+
+
+
+
+
+
 module.exports = {
   uploadDocument,
- viewDocument,
   traiterJustificatif,
   getJustificationAcceptee,
-   getRapportsByStage,
+  getRapportsByStage,
   getRapportValide, 
   hasRapportValide ,
   traiterRapport, 
-  getConventionsASigner, // Ajouté
-  getConventionSignee, // Ajouté
-  hasConventionSignee ,// Ajouté
-  traiterConvention, // Ajouté
-   hasAttestationStage,
+  getConventionsASigner, 
+  getConventionSignee, 
+  hasConventionSignee ,
+  traiterConvention, 
+  hasAttestationStage,
   getAttestationStage,
   genererAttestation,
   getJustificatifForAbsence,
   getHistoriqueTraitementForAbsence,
   getConventionsTraitees,
   getAllConventions,
-   getConventionsASignerByCandidature,
-   getConventionsASignerNonTraitees,
-   getConventionsTraiteesByCandidature,
-   getConventionsCandidat,
-   getCandidaturesAttenteConvention,
+  getConventionsASignerByCandidature,
+  getConventionsASignerNonTraitees,
+  getConventionsTraiteesByCandidature,
+  getConventionsCandidat,
+  getCandidaturesAttenteConvention,
   getConventionsSigneesByCandidat,
   getConventionsSigneesRH,
   getConventionsASignerRH,

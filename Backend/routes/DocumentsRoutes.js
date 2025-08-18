@@ -11,8 +11,7 @@ router.post(
   documentController.uploadDocument
 );
 
-// Route pour consulter un document
-router.get('/:id/view', authenticate, documentController.viewDocument);
+
 
 
 

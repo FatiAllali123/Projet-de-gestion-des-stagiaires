@@ -1,3 +1,4 @@
+
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
@@ -25,7 +26,7 @@ import {ConventionsComponent} from '../conventions.component/conventions.compone
 import {ConventionsGestion} from '../../components/conventions-gestion/conventions-gestion';
 import {Evaluation} from '../../components/evaluation/evaluation';
 import { RapportGestion } from '../rapport-gestion/rapport-gestion';
-
+import { NavigationService } from '../../services/NavigationService';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -44,7 +45,14 @@ selectedOffreId: number | null = null;
 selectedEncadrantId: number | null = null;
 selectedStageId: number | null = null;
 
-  constructor(private auth: AuthService, private router: Router, public route: ActivatedRoute) {}
+
+
+selectedCandidatureId: number | null = null;
+selectedEntretienId: number | null = null;
+
+
+ previousSection: string = '';
+  constructor(private auth: AuthService, private router: Router, public route: ActivatedRoute,private navigation: NavigationService) {}
 
   ngOnInit() {
     this.auth.getCurrentUser().subscribe(user => {
@@ -55,6 +63,50 @@ selectedStageId: number | null = null;
 
       this.userRole = user.role;
       this.setDefaultSection();
+    });
+
+
+    // Écoutez les changements de section via NavigationService
+    this.navigation.section$.subscribe(({ section, params }) => {
+      if (section) {
+        this.activeSection = section;
+        
+       if (section === 'mes-candidatures') {
+      // Réinitialiser d'abord pour forcer la mise à jour
+      this.selectedCandidatureId = null;
+      if (params?.candidatureId) {
+        this.selectedCandidatureId = params.candidatureId;
+      }
+     if (params?.entretienId ) {
+        this.selectedEntretienId = params.entretienId ;
+      }
+
+      if (params?.offreId) {
+        this.selectedOffreId = params.offreId;
+      }
+    }
+
+    if (section === 'mes-stages'){
+       this.selectedStageId = null;
+       if (params?.stageId ) {
+        this.selectedStageId = params.stageId ;
+       }
+    }
+
+
+    if (section === 'mes-stages-encadrant'){
+       this.selectedStageId = null;
+       if (params?.stageId ) {
+        this.selectedStageId = params.stageId ;
+       }
+    }
+
+     if (section === 'cnv2'){
+      console.log('cnv section selected');
+     
+    }
+
+      }
     });
   }
 
@@ -95,14 +147,25 @@ onEncadrantBack() {
   this.selectedEncadrantId = null;
 }
 onStageSelected(stageId: number) {
+    this.previousSection = this.activeSection; // Sauvegarde la section actuelle
   this.selectedStageId = stageId;
 }
 
-onBackToList() {
-  this.selectedStageId = null;
-}
+
+ onBackToList() {
+    if (this.previousSection === 'encadrant-stages') {
+      // Retour à la liste des stages de l'encadrant
+      this.activeSection = 'comptes';
+
+    } else {
+      // Retour à la liste générale des stages
+      this.selectedStageId = null;
+    }
+  }
+
 
 onStageSelectedFromEncadrantList(stageId: number) {
+     this.previousSection = 'encadrant-stages'; // Spécifique aux stages d'un encadrant
   this.selectedStageId = stageId;
   
   // Si on vient de la liste des encadrants (comptes)
@@ -116,6 +179,5 @@ onStageSelectedFromEncadrantList(stageId: number) {
     this.auth.logout();
  
   }
-
 
 }

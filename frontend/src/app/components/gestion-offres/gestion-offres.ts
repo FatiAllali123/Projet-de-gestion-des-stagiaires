@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { OffreService, Offre } from '../../services/offre.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgForm } from '@angular/forms';
 @Component({
   selector: 'app-gestion-offres',
   standalone: true,
@@ -157,9 +158,18 @@ annuler() {
   this.error = null;
 }
 
-soumettreFormulaire() {
+soumettreFormulaire(form: NgForm) {
+  // Validation du formulaire
+  if (form.invalid) {
+    // Marquer tous les champs comme touchés pour afficher les erreurs
+    Object.keys(form.controls).forEach(key => {
+      form.controls[key].markAsTouched();
+    });
+    return;
+  }
+
+  // Logique de soumission existante
   if (this.editingOffre) {
-    
     this.offreService.updateOffre(this.editingOffre.id!, this.formulaire).subscribe({
       next: (res) => {
         this.success = res.message;
@@ -168,7 +178,7 @@ soumettreFormulaire() {
       },
       error: (err) => {
         this.error = err.error?.message || 'Erreur lors de la modification';
-        console.error('Erreur détaillée:', err); // pour le debug
+        console.error('Erreur détaillée:', err);
       }
     });
   } else {
@@ -182,6 +192,7 @@ soumettreFormulaire() {
     });
   }
 }
+
   supprimerOffre(id: number) {
     const confirmDelete = confirm("Es-tu sûr de vouloir supprimer cette offre ?");
     if (!confirmDelete) return;

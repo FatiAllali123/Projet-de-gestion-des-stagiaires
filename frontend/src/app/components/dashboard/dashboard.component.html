@@ -1,3 +1,4 @@
+
 <div class="dashboard-container">
   <app-nav-bar></app-nav-bar>
   
@@ -119,19 +120,25 @@
           <ng-container *ngSwitchCase="'mes-stages'">
             <app-stages-list  
               *ngIf="!selectedStageId" 
-              (stageSelected)="onStageSelected($event)">
+              (stageSelected)="onStageSelected($event)"
+              >
             </app-stages-list>
 
             <app-stage-details-stagiaire 
               *ngIf="selectedStageId && userRole === 'candidat'"
               [stageId]="selectedStageId"
-              (back)="onBackToList()">
+              (back)="onBackToList()"
+              >
             </app-stage-details-stagiaire>
           </ng-container>
 
           <!-- Mes candidatures -->
-          <app-mes-candidatures *ngSwitchCase="'mes-candidatures'"></app-mes-candidatures>
-
+          <app-mes-candidatures 
+          *ngSwitchCase="'mes-candidatures'"
+          [candidatureId]="selectedCandidatureId !== null ? selectedCandidatureId : undefined"
+          [entretienId]="selectedEntretienId !== null ? selectedEntretienId : undefined"
+          [offreId]="selectedOffreId !== null ? selectedOffreId : undefined">
+</app-mes-candidatures>
           <!-- Commun -->
           <app-profil *ngSwitchCase="'mon-profil'"></app-profil>
           <app-change-password *ngSwitchCase="'changer-password'"></app-change-password>

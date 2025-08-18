@@ -13,8 +13,8 @@
   <div *ngIf="!loading && stage" class="stage-content">
     <div class="stage-header">
       <h2>{{ stage.sujet_stage }}</h2>
-      <span class="status-badge" [ngClass]="getBadgeClass(stage.statut_stage)">
-        {{ stage.statut_stage }}
+      <span class="status-badge" [ngClass]="getBadgeClass(stage?.statut_stage)">
+        {{ stage?.statut_stage }}
       </span>
     </div>
 
@@ -156,7 +156,8 @@
         class="upload-square-btn" 
         (click)="triggerReportFileInput()" 
         title="Ajouter un rapport"
-        [disabled]="false"
+        
+        [disabled]="isStageNotEncours()"
         type="button">
         <i class="upload-icon fas fa-cloud-upload-alt"></i>
       </button>
@@ -264,7 +265,7 @@
       <span class="file-size text-muted">({{ (selectedReportFile.size / 1024).toFixed(0) }} KB)</span>
     </div>
     <div class="file-actions d-flex gap-2">
-      <button class="action-btn confirm-btn" (click)="uploadReport()" [disabled]="uploadingReport">
+      <button class="action-btn confirm-btn" (click)="uploadReport()" [disabled]="uploadingReport"  >
         <i class="fas fa-check"></i> 
       </button>
       <button class="action-btn cancel-btn" (click)="cancelReportUpload()" [disabled]="uploadingReport">
@@ -363,7 +364,7 @@
                 class="upload-square-btn" 
                 (click)="triggerJustificationFileInput(absence.id)" 
                 title="Ajouter un justificatif"
-                [disabled]="hasPendingJustification(absence.id)"
+                  [disabled]="isStageNotEncours() || hasPendingJustification(absence.id)"
                 type="button">
                 <i class="upload-icon fas fa-cloud-upload-alt"></i>
               </button>
@@ -449,13 +450,13 @@
   </div>
    <div class="document-body">
   <!-- 1️⃣ Stage pas encore terminé -->
-  <div *ngIf="stage.statut_stage !== 'Terminé'" class="state-message">
+  <div *ngIf="stage?.statut_stage !== 'Terminé'" class="state-message">
     <i class="bi bi-info-circle"></i>
      <i class="no-document fa-solid fa-info-circle"></i>  L'évaluation sera disponible une fois le stage terminé
   </div>
 
   <!-- 2️⃣ Stage terminé -->
-  <div *ngIf="stage.statut_stage === 'Terminé'">
+  <div *ngIf="stage?.statut_stage === 'Terminé'">
     <!-- Erreur -->
     <div *ngIf="evaluationError" class="error-message">
       <i class="bi bi-exclamation-triangle"></i>

@@ -32,7 +32,7 @@
           <div *ngFor="let notif of notifications" 
                class="notification-item"
                [class.unread]="!notif.est_lu"
-               (click)="handleNotificationClick(notif)">
+               (click)="markAsRead(notif)">
             <h4>{{ notif.titre }}</h4>
             <p>{{ notif.message }}</p>
             <small>{{ notif.date_creation | date:'short' }}</small>

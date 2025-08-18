@@ -15,6 +15,7 @@ import{HomePageComponent} from './components/home-page/home-page.component';
 import { GestionCandidaturesComponent } from './components/gestion-candidatures/gestion-candidatures.component';
 import { ListeOffresComponent } from './components/gestion-candidatures/liste-offres/liste-offres.component';
 import { PageAccueilComponent } from './components/page-accueil.component/page-accueil.component';
+import { MesCandidaturesComponent } from './components/mes-candidatures/mes-candidatures';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/Home', pathMatch: 'full' },  // redirection à l'ouverture
@@ -37,6 +38,9 @@ export const routes: Routes = [
       { path: '', component: ListeOffresComponent }, // Route par défaut
       { path: ':offre_id', component: GestionCandidaturesComponent } // Détails candidatures
     ]
-  }
+  },
+
+
+
 
 ];

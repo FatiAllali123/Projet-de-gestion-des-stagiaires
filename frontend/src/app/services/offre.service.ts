@@ -100,5 +100,7 @@ getAllOffres(filters?: {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/${id}/delete` , { headers: this.getHeaders() });
   }
 
-  
+      getOffreById(offreId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${offreId}`, { headers: this.getHeaders() });
+  }
 }

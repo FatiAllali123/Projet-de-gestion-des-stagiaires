@@ -1,3 +1,4 @@
+
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -9,7 +10,24 @@ export interface Candidature {
   lettre_motivation: string;
   offre_id: number;
   candidat_id?: number;
-  Offre?: Offre; // Offre associée, tu peux typer mieux
+  Offre?: Offre;
+   
+  PropositionsDates?: Array<{
+    id: number;
+    date_debut_proposee: string;
+    date_fin_proposee: string;
+    statut: string;
+    commentaire: string | null;
+    date_proposition: string;
+    date_traitement: string | null;
+  }>;
+    Entretiens?: Array<{
+    id: number;
+    date_entretien: string;
+    heure_entretien: string;
+    
+   
+  }>;
 }
 
 export interface Offre {

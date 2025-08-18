@@ -64,9 +64,12 @@ loadStaff() {
     });
   }
 
+
   onRoleFilterChange() {
     this.loadStaff();
   }
+
+
   createAccount() {
         if (this.staffForm.invalid) {
       // Marquer tous les champs comme touchés pour afficher les erreurs
@@ -104,9 +107,12 @@ loadStaff() {
     });
 }
 
+
+
   manage(id: number, action: 'disable' | 'enable' | 'delete') {
   if (action === 'delete') {
-    const confirmDelete = window.confirm("Es-tu sûr(e) de vouloir supprimer ce compte ?");
+    const confirmDelete = window.confirm(`Êtes-vous sûr de vouloir supprimer ce compte ? 
+                   \nCette action est irréversible et supprimera toutes les données associées a ce compte `);
     if (!confirmDelete) return; // Si l'utilisateur annule, on ne fait rien
   }
 

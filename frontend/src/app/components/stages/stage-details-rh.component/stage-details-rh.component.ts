@@ -70,6 +70,7 @@ export class StageDetailsRhComponent implements OnInit {
   }
 
   ngOnInit() {
+   
     this.loadStageDetails();
     this.loadRapportValide();
     this.loadConventions(); 
@@ -82,9 +83,10 @@ export class StageDetailsRhComponent implements OnInit {
     this.stageService.getStageDetails(this.stageId).subscribe({
       next: (response) => {
         this.stage = response;
-         this.loadEvaluation(); 
+     
+          this.loadEvaluation(); 
           this.checkStageStatus(); // Vérifier l'état du stage
-        this.checkAttestation(); // Vérifier l'attestation
+          this.checkAttestation(); // Vérifier l'attestation
         
         this.loading = false;
         
@@ -149,6 +151,7 @@ export class StageDetailsRhComponent implements OnInit {
 
  // 
   loadEvaluation() {
+    console.log("statut_stage:",this.stage?.statut_stage);
     if (this.stage?.statut_stage === 'Terminé') {
       this.evaluationService.getEvaluationByStageId(this.stageId).subscribe({
         next: (response) => {
@@ -192,6 +195,16 @@ export class StageDetailsRhComponent implements OnInit {
   }
 
   affecterOuModifierEncadrant() {
+    if (this.isStageNotEncours()) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Action impossible',
+      text: 'Le stage est terminé, vous ne pouvez plus affecter ou modifier l’encadrant.',
+      confirmButtonText: 'OK'
+    });
+    return;
+  }
+  
     if (!this.selectedEncadrantId) return;
 
     this.isAffecting = true;
@@ -365,7 +378,9 @@ getSignedConvention(): any {
 }
 
 
-
+isStageNotEncours(): boolean {
+  return this.stage?.statut_stage?.toLowerCase() !== 'en cours';
+}
 }
 
 

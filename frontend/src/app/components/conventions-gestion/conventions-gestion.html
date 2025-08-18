@@ -16,10 +16,8 @@
   </div>
 
 
-  <!-- Message d'alerte -->
-  <div *ngIf="message" class="alert" [class.success]="messageType === 'success'" [class.error]="messageType === 'error'">
-    {{ message }}
-  </div>
+
+
 
 
  <!-- Contenu pour le RH -->
@@ -54,7 +52,7 @@
             <td>{{ convention.Candidature?.Offre?.titre }}</td>
             <td>{{ getFormattedDate(convention.date_depot) }}</td>
             <td>
-              <a [href]="convention.lien" target="_blank" class="btn-view">
+              <a [href]="'http://localhost:3000/' +convention.lien" target="_blank" class="btn-view">
                 Voir
               </a>
             </td>
@@ -160,7 +158,7 @@
               {{ getFormattedDate(convention.Stage?.date_fin) }}
             </td>
             <td>
-              <a [href]="convention.lien" target="_blank" class="btn-view">
+              <a [href]="'http://localhost:3000/' + convention.lien" target="_blank" class="btn-view">
                 Voir
               </a>
             </td>
@@ -313,7 +311,7 @@
   
               </td>
               <td>
-                <a [href]="convention.lien" target="_blank" class="btn-view">
+                <a [href]="'http://localhost:3000/' +convention.lien" target="_blank" class="btn-view">
                   Voir
                 </a>
               </td>

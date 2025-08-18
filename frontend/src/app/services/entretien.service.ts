@@ -100,4 +100,10 @@ export class EntretienService {
       message: string;
     }>(`${this.apiUrl}/${entretienId}/terminer`, {} , { headers: this.getHeaders() });
   }
+
+
+
+    getEntretienById(entretienId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${entretienId}`, { headers: this.getHeaders() });
+  }
 }

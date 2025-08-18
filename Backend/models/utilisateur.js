@@ -76,14 +76,14 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Utilisateur.associate = (models) => {
-    Utilisateur.hasMany(models.Notification, { foreignKey: 'utilisateur_id' });
-    Utilisateur.hasMany(models.Candidature, { foreignKey: 'candidat_id' });
-    Utilisateur.hasMany(models.Offre, { foreignKey: 'rh_id' });
-    Utilisateur.hasMany(models.Evaluation, { foreignKey: 'encadrant_id' });
-    Utilisateur.hasMany(models.Stage, { as: 'Encadrant', foreignKey: 'encadrant_id' });
-    Utilisateur.hasMany(models.Stage, { as: 'Stagiaire', foreignKey: 'Stagiaire_id' });
-    Utilisateur.hasMany(models.TraitementDocument, { foreignKey: 'acteur_id' });
-    Utilisateur.hasMany(models.ResetPasswordRequest, {foreignKey: 'utilisateur_id',as: 'resetRequests'});
+    Utilisateur.hasMany(models.Notification, { foreignKey: 'utilisateur_id' , onDelete: 'CASCADE'} );
+    Utilisateur.hasMany(models.Candidature, { foreignKey: 'candidat_id',  onDelete: 'CASCADE' });
+    Utilisateur.hasMany(models.Offre, { foreignKey: 'rh_id' ,  onDelete: 'CASCADE'});
+    Utilisateur.hasMany(models.Evaluation, { foreignKey: 'encadrant_id', onDelete: 'CASCADE' });
+    Utilisateur.hasMany(models.Stage, { as: 'Encadrant', foreignKey: 'encadrant_id' , onDelete: 'CASCADE'});
+    Utilisateur.hasMany(models.Stage, { as: 'Stagiaire', foreignKey: 'Stagiaire_id' , onDelete: 'CASCADE'});
+    Utilisateur.hasMany(models.TraitementDocument, { foreignKey: 'acteur_id' , onDelete: 'CASCADE'});
+    Utilisateur.hasMany(models.ResetPasswordRequest, {foreignKey: 'utilisateur_id',as: 'resetRequests' ,  onDelete: 'CASCADE'});
   };
 
   return Utilisateur;

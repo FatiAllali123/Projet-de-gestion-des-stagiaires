@@ -47,15 +47,15 @@
       
       <div class="buttons">
         <button class="btn btn-success" 
-                [disabled]="processing"
-                (click)="traiterRapport(rapport.id, 'accepter')">
-          <i class="bi bi-check-circle"></i> Accepter
-        </button>
-        <button class="btn btn-danger"
-                [disabled]="processing"
-                (click)="traiterRapport(rapport.id, 'refuser')">
-          <i class="bi bi-x-circle"></i> Refuser
-        </button>
+        [disabled]="processing"
+        (click)="traiterRapport(rapport.id, 'accepter', rapport)">
+  <i class="bi bi-check-circle"></i> Accepter
+</button>
+<button class="btn btn-danger"
+        [disabled]="processing"
+        (click)="traiterRapport(rapport.id, 'refuser', rapport)">
+  <i class="bi bi-x-circle"></i> Refuser
+</button>
       </div>
     </div>
   </div>

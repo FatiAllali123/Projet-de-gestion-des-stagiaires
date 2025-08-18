@@ -24,7 +24,10 @@
   <div *ngIf="!loading && candidatures.length === 0">Aucune candidature trouvée.</div>
 
   <div *ngIf="!loading && candidatures.length > 0">
-    <div *ngFor="let c of candidatures" class="candidature-card">
+    <div *ngFor="let c of candidatures" class="candidature-card"   
+      [id]="'candidature-' + c.id"
+     [class.highlighted-candidature]="selectedCandidature?.id === c.id"
+     >
       <h3>{{ c.Offre?.titre }}</h3>
       <p><strong>Statut :</strong> {{ c.statut_candidature }}</p>
       <p><strong>Date :</strong> {{ c.date_creation | date:'dd/MM/yyyy' }}</p>
@@ -47,7 +50,11 @@
     <div *ngIf="hasAcceptedProposition(c)" class="status-accepted">
       <i class="fas fa-check-circle"></i> Période validée: du {{ getAcceptedPropositionDate(c, 'debut') }} au {{ getAcceptedPropositionDate(c, 'fin') }}
     </div>
-  
+  <div *ngIf="hasPlannedInterview(c)" class="status-pending">
+  <i class="fas fa-calendar-check"></i> 
+  Entretien planifié le {{ c.Entretiens?.[0]?.date_entretien | date:'dd/MM/yyyy' }}
+  <span *ngIf="c.Entretiens && c.Entretiens[0] && c.Entretiens[0].heure_entretien">à {{ formatTime(c.Entretiens[0].heure_entretien || '') }}</span>
+</div>
   </div>
 
       <a [href]="getFileUrl(c.cv)" target="_blank">📄 CV</a> |

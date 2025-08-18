@@ -1,4 +1,4 @@
-const { Utilisateur , Stage } = require('../models'); // importer le modèle Utilisateur
+const { Utilisateur , Stage , Notification , Candidature , Offre , Evaluation , TraitementDocument , ResetPasswordRequest} = require('../models'); // importer le modèle Utilisateur
 const bcrypt = require('bcrypt');// pour le hachage des mots de passe
 const { sendWelcomeEmail ,sendAccountStatusEmail} = require('../services/EmailService');
 const { creerHistoriqueModification  } = require('./HistoriqueModificationController');
@@ -220,6 +220,10 @@ async updateUser(req, res) {
     });
   }
 },
+
+
+
+
 // Fonction pourgérer les actions admin sur les comptes
 async manageStaffAccount(req, res) {
   try {
@@ -228,7 +232,20 @@ async manageStaffAccount(req, res) {
     }
 
     const { action } = req.body;
-    const user = await Utilisateur.findByPk(req.params.id);
+    
+      const user = await Utilisateur.findByPk(req.params.id, {
+      include: [
+        { model: Stage, as: 'Encadrant' },
+        { model: Stage, as: 'Stagiaire' },
+        {model:Notification },
+      {model : Candidature},
+      {model : Offre},
+      {model : Evaluation},
+      {model : TraitementDocument},
+      {model :ResetPasswordRequest , as: 'resetRequests'}
+     
+      ]
+    });
     if (!user) throw new Error("Utilisateur non trouvé");
 
     const ancienneValeur = user.statut_compte;
@@ -240,8 +257,20 @@ async manageStaffAccount(req, res) {
         user.statut_compte = 'actif';
         break;
       case 'delete':
+         // Vérifier les dépendances
+        const dependencies = await checkUserDependencies(user);
+        if (dependencies.length > 0) {
+          return res.status(400).json({ 
+            error: "Suppression bloquée",
+            message: "Ce compte est lié à d'autres données",
+            dependencies: dependencies
+          });
+        }
+        
         await user.destroy();
-        return res.json({ message: "Compte supprimé" });
+        return res.json({ 
+          message: "Compte et toutes ses données associées supprimés" 
+        });
       default:
         throw new Error("Action invalide");
     }
@@ -372,36 +401,7 @@ async changerMotDePasse(req, res) {
   }
 }
 ,
-// Fonction pour récupérer les encadrants
-/*
-async getEncadrants(req, res) {
-  try {
-    const { search } = req.query;
 
-    const whereClause = {
-      role: 'encadrant'
-    };
-
-    if (search) {
-      whereClause[Op.or] = [
-        { nom: { [Op.iLike]: `%${search}%` } },
-        { prenom: { [Op.iLike]: `%${search}%` } },
-        { email: { [Op.iLike]: `%${search}%` } }
-      ];
-    }
-
-    const encadrants = await Utilisateur.findAll({
-      where: whereClause,
-      attributes: ['id', 'nom', 'prenom', 'email', 'specialite_encadrant']
-    });
-
-    res.json(encadrants);
-  } catch (error) {
-    console.error("Erreur lors de la récupération des encadrants :", error);
-    res.status(500).json({ message: 'Erreur serveur.' });
-  }
-}
-*/
 async  getEncadrants(req, res) {
   try {
     const { search } = req.query;
@@ -445,3 +445,38 @@ async  getEncadrants(req, res) {
 
 
 };
+
+async function checkUserDependencies(user) {
+  const [
+    encadrantStages, 
+    stagiaireStages,
+    candidatures,
+    offres,
+    evaluations,
+    traitements,
+    notifications,
+    resetRequests
+  ] = await Promise.all([
+    Stage.count({ where: { encadrant_id: user.id } }),
+    Stage.count({ where: { Stagiaire_id: user.id } }),
+    Candidature.count({ where: { candidat_id: user.id } }),
+    Offre.count({ where: { rh_id: user.id } }),
+    Evaluation.count({ where: { encadrant_id: user.id } }),
+    TraitementDocument.count({ where: { acteur_id: user.id } }),
+    Notification.count({ where: { utilisateur_id: user.id } }),
+    ResetPasswordRequest.count({ where: { utilisateur_id: user.id } })
+  ]);
+
+  const dependencies = [];
+
+  if (encadrantStages > 0) dependencies.push({ model: 'Stage', count: encadrantStages, relation: 'Encadrant' });
+  if (stagiaireStages > 0) dependencies.push({ model: 'Stage', count: stagiaireStages, relation: 'Stagiaire' });
+  if (candidatures > 0) dependencies.push({ model: 'Candidature', count: candidatures, relation: 'Candidat' });
+  if (offres > 0) dependencies.push({ model: 'Offre', count: offres, relation: 'RH' });
+  if (evaluations > 0) dependencies.push({ model: 'Evaluation', count: evaluations, relation: 'Encadrant' });
+  if (traitements > 0) dependencies.push({ model: 'TraitementDocument', count: traitements, relation: 'Acteur' });
+  if (notifications > 0) dependencies.push({ model: 'Notification', count: notifications, relation: 'Destinataire' });
+  if (resetRequests > 0) dependencies.push({ model: 'ResetPasswordRequest', count: resetRequests, relation: 'Demandeur' });
+
+  return dependencies;
+}

@@ -16,8 +16,8 @@
   <div *ngIf="!loading && stage" class="stage-content">
      <div class="stage-header">
       <h2>{{ stage.sujet_stage }}</h2>
-      <span class="status-badge" [ngClass]="getBadgeClass(stage.statut_stage)">
-        {{ stage.statut_stage }}
+      <span class="status-badge" [ngClass]="getBadgeClass(stage?.statut_stage)">
+        {{ stage?.statut_stage }}
       </span>
     </div>
       <div class="stage-period">
@@ -113,7 +113,8 @@
 <button 
     class="btn-action" 
     (click)="toggleAbsenceForm()"
-    *ngIf="stage.statut_stage === 'En cours'">
+    [disabled]="isStageNotEncours()"
+    >
     {{ showAbsenceForm ? 'Annuler' : 'Marquer une absence' }}
 </button>
 
@@ -246,13 +247,13 @@
   </div>
    <div class="document-body">
   <!-- 1️⃣ Stage pas encore terminé -->
-  <div *ngIf="stage.statut_stage !== 'Terminé'" class="state-message">
+  <div *ngIf="stage?.statut_stage !== 'Terminé'" class="state-message">
     <i class="bi bi-info-circle"></i>
     <i class="no-document fa-solid fa-info-circle"></i> L'évaluation sera disponible une fois le stage terminé
   </div>
 
   <!-- 2️⃣ Stage terminé -->
-  <div *ngIf="stage.statut_stage === 'Terminé'">
+  <div *ngIf="stage?.statut_stage === 'Terminé'">
     <!-- Erreur -->
     <div *ngIf="evaluationError" class="error-message">
       <i class="bi bi-exclamation-triangle"></i>

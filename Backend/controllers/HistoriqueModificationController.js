@@ -1,4 +1,4 @@
-// controllers/HistoriqueModificationController.js
+
 const { HistoriqueModification } = require('../models');
 
 const TABLES_EXISTANTES = ['utilisateur', 'Stage', 'Offre', 'Candidature', 'Entretien'];

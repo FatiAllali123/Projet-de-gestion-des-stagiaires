@@ -8,8 +8,7 @@ const { Op } = require('sequelize');
 module.exports = {
   // Planifier un entretien
 async  planifier(req, res) {
-   console.log('Corps de la requête:', req.body); // Ajoutez ce log
-  console.log('Paramètres:', req.params); // Ajoutez ce log
+
   const { date_entretien, heure_entretien } = req.body;
   const { id } = req.params; // id de la candidature
   const rh_id = req.user.userId;
@@ -76,7 +75,7 @@ async  planifier(req, res) {
       titre: "Entretien planifié",
       message: `Un entretien a été planifié pour votre candidature à l'offre "${candidature.Offre.titre}" le ${dateAffichage}`,
       type: "entretien",
-      lien_action: `/entretiens/${entretien.id}`,
+      lien_action: `mes-candidatures`,
       entretien_id: entretien.id
     });
 
@@ -101,8 +100,6 @@ async  planifier(req, res) {
     });
   }
 }
-
-
 ,
 async modifierEntretien(req, res) {
   const { date_entretien, heure_entretien } = req.body;
@@ -153,7 +150,7 @@ async modifierEntretien(req, res) {
       titre: "Date d'entretien modifiée",
       message: `La date de votre entretien pour l'offre "${candidature.Offre.titre}" a été modifiée pour le ${dateAffichage}`,
       type: "entretien",
-      lien_action: `/entretiens/${entretien.id}`,
+      lien_action: `mes-candidatures`,
       entretien_id: entretien.id
     });
 
@@ -235,9 +232,9 @@ await entretien.Candidature.update({ statut_candidature: 'Presélectionnée' });
     await creerNotification({
       utilisateur_id: entretien.Candidature.candidat_id,
       titre: "Entretien annulé",
-      message: `Votre entretien pour "${entretien.Candidature.Offre.titre}" a été annulé`,
+      message: `Votre entretien pour "${entretien.Candidature.Offre.titre}" a été annulé. Un nouvel sera prochainement planifié.`,
       type: "annulation_entretien",
-      lien_action: `/mes-candidatures/${entretien.Candidature.id}`,
+      lien_action: `mes-candidatures`,
       entretien_id: id
     });
 
@@ -265,7 +262,7 @@ await entretien.Candidature.update({ statut_candidature: 'Presélectionnée' });
 ,
 
   // Marquer un entretien comme terminé
-  async terminer(req, res) {
+async terminer(req, res) {
     const { id } = req.params;
     const rh_id = req.user.userId;
 
@@ -314,4 +311,7 @@ await entretien.Candidature.update({ statut_candidature: 'Presélectionnée' });
       });
     }
   }
+
+
+
 };

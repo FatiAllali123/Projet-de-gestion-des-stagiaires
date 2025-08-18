@@ -27,7 +27,7 @@ if (isNaN(dateDebut.getTime()) || isNaN(dateFin.getTime())) {
 
     const candidatId = candidature.candidat_id;
 
-    // 1. Vérifier qu'il n'y a pas déjà une proposition acceptée pour cette candidature
+    // Vérifier qu'il n'y a pas déjà une proposition acceptée pour cette candidature
     const propositionAcceptee = await PropositionDates.findOne({
       where: {
         candidature_id,
@@ -38,7 +38,7 @@ if (isNaN(dateDebut.getTime()) || isNaN(dateFin.getTime())) {
       return res.status(400).json({ message: "Une période acceptée existe déjà pour cette candidature." });
     }
 
-    // 2. Vérifier conflit avec stages existants du candidat
+    //Vérifier conflit avec stages existants du candidat
     const hasConflict = await Stage.findOne({
       where: {
         Stagiaire_id: candidatId,
@@ -65,7 +65,7 @@ if (isNaN(dateDebut.getTime()) || isNaN(dateFin.getTime())) {
       });
     }
 
-    // Si ok, créer la proposition
+    //  créer la proposition
     const proposition = await PropositionDates.create({
       candidature_id,
       date_debut_proposee,
@@ -128,7 +128,7 @@ const traiterPeriode = async (req, res) => {
     const offre = candidature.Offre;
     const rh = offre?.RH;
 
-    const dateTraitement = new Date(); // On fixe la date de traitement ici
+    const dateTraitement = new Date(); // la date de traitement 
 
     if (action === 'accepter') {
       await proposition.update({ 
@@ -145,7 +145,7 @@ const traiterPeriode = async (req, res) => {
           type: 'validation_stage',
           offre_id: offre.id,
           candidature_id: candidature.id,
-          lien_action: `/candidatures/${candidature.id}/propositions`
+          lien_action: `mes-candidatures`
         });
       }
 

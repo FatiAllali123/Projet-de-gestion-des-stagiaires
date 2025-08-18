@@ -1,5 +1,7 @@
 require('./config/db'); // fichier de connexion a la base de données
 require("./cron"); // fichier de cron pour la mise à jour des statuts des stages
+require("./Entretien-cron"); // fichier de cron pour la mise à jour des statuts des stages
+const { startCronJobs } = require('./Entretien-cron');
 const http = require('http');
 const app = require('./app');
 const normalizePort = val => {
@@ -40,4 +42,7 @@ const address = server.address();
 const bind = typeof address === 'string' ? 'pipe ' + address : 'port ' + port;
 console.log('Listening on ' + bind);
 });
+
+
+
 server.listen(port);

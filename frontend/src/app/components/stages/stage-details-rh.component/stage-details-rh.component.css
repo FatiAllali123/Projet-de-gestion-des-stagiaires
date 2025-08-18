@@ -153,7 +153,12 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
-
+.btn-encadrant:disabled {
+  background-color: #cccccc; /* gris clair */
+  color:white;           /* texte gris */
+  cursor: not-allowed;      /* curseur interdit */
+  opacity: 0.7;             /* effet visuel de désactivation */
+}
 .btn-confirm {
   background: green;
   opacity: 0.7;

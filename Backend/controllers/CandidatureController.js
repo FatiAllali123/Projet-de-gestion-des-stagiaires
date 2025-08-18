@@ -88,7 +88,6 @@ if (!cvRelativePath || !lettreRelativePath) {
 }
 
   // Vérifier si l'utilisateur a déjà postulé à une offre
- 
   async function checkAlreadyApplied(req, res) {
     const { offre_id } = req.params;
     const candidat_id = req.user.userId;
@@ -135,6 +134,14 @@ if (!cvRelativePath || !lettreRelativePath) {
            as: 'PropositionsDates', 
            required : false ,
           attributes: ['id', 'date_debut_proposee', 'date_fin_proposee', 'statut', 'commentaire', 'date_proposition', 'date_traitement']
+        },
+              {
+          model: Entretien,
+           required : false ,
+          attributes: ['id', 'date_entretien', 'heure_entretien'],
+          where: {
+                        statut: 'Planifié' // Seuls les entretiens avec statut 'planifié'
+                    }
         }
       ],
         order: [['date_creation', 'DESC']]
@@ -343,12 +350,27 @@ if (['Acceptée', 'Refusée'].includes(candidature.statut_candidature)) {
     id_candidature: candidature.id
   });
 
+
+    // Définition du message selon le statut
+  let messageNotification = '';
+  if (nouveauStatut === 'Acceptée') {
+    messageNotification = `Votre candidature pour l'offre "${candidature.Offre.titre}" est maintenant acceptée. La période de stage sera proposée prochainement.`;
+  } else if (nouveauStatut === 'Refusée') {
+    messageNotification = `Votre candidature pour l'offre "${candidature.Offre.titre}" a été refusée.`;
+  } else if (nouveauStatut === 'Présélectionnée') {
+    messageNotification = `Votre candidature pour l'offre "${candidature.Offre.titre}" est maintenant présélectionnée. L'entretien sera planifié prochainement.`;
+  } else if (nouveauStatut === 'Entretien planifié') {
+    messageNotification = `Votre entretien pour l'offre "${candidature.Offre.titre}" a été planifié.`;
+  } else {
+    messageNotification = `Votre candidature pour l'offre "${candidature.Offre.titre}" est maintenant "${nouveauStatut}".`;
+  }
+  // Création de la notification
   await creerNotification({
     utilisateur_id: candidature.candidat_id,
     titre: `Candidature ${nouveauStatut}`,
-    message: `Votre candidature pour "${candidature.Offre.titre}" est maintenant "${nouveauStatut}"`,
+    message: messageNotification ,
     type: "statut_candidature",
-    lien_action: `/mes-candidatures/${candidatureId}`,
+    lien_action: `mes-candidatures`,
     type_cible: "candidat",
     candidature_id: candidatureId
   });
@@ -362,7 +384,6 @@ if (['Acceptée', 'Refusée'].includes(candidature.statut_candidature)) {
 
   return candidature;
 }
-
 
 // Accepter une candidature
 async function accepterCandidature(req, res) {

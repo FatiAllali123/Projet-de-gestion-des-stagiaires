@@ -50,23 +50,27 @@ rapports: any[] = [];
     });
   }
 
-  traiterRapport(documentId: number, action: 'accepter' | 'refuser') {
-console.log(documentId);
-    this.processing = true;
-    this.documentService.processReport(documentId, action, this.commentaire).subscribe({
-      next: () => {
-        this.processing = false;
-        this.commentaire = '';
-        // Recharger la liste après traitement
-        this.loadUntreatedReports(this.currentUserId);
-      },
-      error: (err) => {
-        console.error('Erreur lors du traitement', err);
-        this.processing = false;
-      }
-    });
-  }
-
+traiterRapport(documentId: number, action: 'accepter' | 'refuser', rapport: any) {
+  console.log(documentId);
+  this.processing = true;
+  
+  // Récupérer le commentaire depuis l'objet rapport
+  const commentaire = rapport.commentaire || '';
+  
+  this.documentService.processReport(documentId, action, commentaire).subscribe({
+    next: () => {
+      this.processing = false;
+      // Réinitialiser seulement le commentaire de ce rapport
+      rapport.commentaire = ''; 
+      // Recharger la liste après traitement
+      this.loadUntreatedReports(this.currentUserId);
+    },
+    error: (err) => {
+      console.error('Erreur lors du traitement', err);
+      this.processing = false;
+    }
+  });
+}
   getStatutClass(statut: string): string {
     switch (statut.toLowerCase()) {
       case 'accepté':

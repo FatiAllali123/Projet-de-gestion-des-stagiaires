@@ -13,6 +13,7 @@ module.exports = {
         }
       });
    await transporter.sendMail({
+      from: `"Vala Stages" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: 'Votre compte professionnel',
         html: `<p>Bonjour ${prenom} ${nom},<br>
@@ -44,6 +45,7 @@ module.exports = {
           : 'Votre compte a été désactivé. Vous ne pouvez plus accéder à la plateforme.';
 
       await transporter.sendMail({
+          from: `"Vala Stages" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: `Mise à jour de votre compte`,
         html: `<p>Bonjour ${prenom} ${nom},<br>${message}</p>`
@@ -84,6 +86,7 @@ async  sendEntretienNotificationEmail(email, prenom, titreOffre, date_entretien,
     }
 
     await transporter.sendMail({
+        from: `"Vala Stages" <${process.env.EMAIL_USER}>`,
       to: email,
       subject,
       html
@@ -113,6 +116,7 @@ async sendCandidatureStatusEmail(email, prenom, titreOffre, statut) {
       L'équipe RH`;
 
     await transporter.sendMail({
+        from: `"Vala Stages" <${process.env.EMAIL_USER}>`,
       to: email,
       subject,
       html: message
@@ -145,6 +149,7 @@ async  sendStageCreationEmail(email, prenom, sujet_stage, date_debut, date_fin) 
     `;
 
     await transporter.sendMail({
+        from: `"Vala Stages" <${process.env.EMAIL_USER}>`,
       to: email,
       subject,
       html
@@ -179,6 +184,7 @@ async  sendStageAssignmentEmail(email, prenom, sujet_stage, date_debut, date_fin
     `;
 
     await transporter.sendMail({
+        from: `"Vala Stages" <${process.env.EMAIL_USER}>`,
       to: email,
       subject,
       html
@@ -228,7 +234,7 @@ async sendEncadrantChangeEmail(email, prenom, sujetStage, type, dateDebut = null
     }
 
     await transporter.sendMail({
-      from: `"Plateforme de Stages" <${process.env.EMAIL_USER}>`,
+        from: `"Vala Stages" <${process.env.EMAIL_USER}>`,
       to: email,
       subject,
       html

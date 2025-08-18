@@ -126,7 +126,11 @@ export class StageDetailsEncadrantComponent implements OnInit {
             }
           },
           error: (err) => {
+           if (err.status !== 404) { // Ne logguez que les erreurs autres que 404
             console.error('Error loading justification', err);
+          }
+       
+
           }
         });
       }
@@ -163,7 +167,10 @@ export class StageDetailsEncadrantComponent implements OnInit {
         };
       },
       error: (err) => {
+        if (err.status !== 404) { // Ne logguez que les erreurs autres que 404
         console.error('Error checking justification status', err);
+      }
+     
       }
     });
   }
@@ -178,6 +185,17 @@ export class StageDetailsEncadrantComponent implements OnInit {
   submitAbsence() {
     if (this.absenceForm.invalid) return;
 
+
+     const selectedDate = new Date(this.absenceForm.value.date_absence);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Vérification frontale pour éviter une requête inutile
+  if (selectedDate > today) {
+    this.absenceError = "Impossible d'enregistrer une absence pour une date future";
+    return;
+  }
+  
     const absenceData = {
       stage_id: this.stageId,
       date_absence: this.absenceForm.value.date_absence
@@ -275,4 +293,9 @@ export class StageDetailsEncadrantComponent implements OnInit {
     return rapport.statut === 'accepté' &&
            this.rapports.findIndex(r => r.statut === 'accepté') === this.rapports.indexOf(rapport);
   }
+
+isStageNotEncours(): boolean {
+  return this.stage?.statut_stage?.toLowerCase() !== 'en cours';
+}
+
 }

@@ -221,7 +221,6 @@ validateFile(file: File): boolean {
 uploadConvention(candidatureId: number): void {
     const file = this.selectedFiles[candidatureId];
     if (!file) {
-      this.showMessage('Veuillez sélectionner un fichier', 'error');
       return;
     }
 
@@ -230,14 +229,14 @@ uploadConvention(candidatureId: number): void {
 
     this.documentService.envoyerConvention(candidatureId, file).subscribe({
       next: (response) => {
-        this.showMessage('Convention envoyée avec succès', 'success');
+       
         delete this.selectedFiles[candidatureId];
         delete this.uploadProgress[candidatureId];
         this.loadCandidaturesAttente();
       },
       error: (err) => {
         console.error('Erreur envoi convention:', err);
-        this.showMessage(`Erreur lors de l'envoi: ${err.error?.message || 'Erreur serveur'}`, 'error');
+   
         this.isLoading = false;
         delete this.uploadProgress[candidatureId];
       },
@@ -364,4 +363,8 @@ closeSigneeModal(): void {
   this.signeeFile = null;
   this.signeeUploadProgress = 0;
 }
+
+
+
+
 }

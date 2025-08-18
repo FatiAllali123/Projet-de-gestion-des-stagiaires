@@ -1,3 +1,4 @@
+
 const { Notification } = require('../models');
 
 async function getUnreadNotifications(req, res) {
@@ -54,6 +55,7 @@ async function creerNotification({
   stage_id = null,
   document_id = null
 }) {
+  
   return await Notification.create({
     utilisateur_id,
     titre,
@@ -67,7 +69,10 @@ async function creerNotification({
     entretien_id,
     stage_id,
     document_id
-  });
+  }
+);
+
+  
 }
 
 

@@ -33,6 +33,10 @@ export class EncadrantStages implements OnInit {
     { value: 'Terminé', label: 'Terminés' }
   ];
 
+    defaultFilter = 'En cours'; // Valeur par défaut
+  userAppliedFilter = false; // Pour suivre si l'utilisateur a changé le filtre
+
+
   @Input() encadrantId!: number;
   @Output() back = new EventEmitter<void>();
   @Output() stageSelected = new EventEmitter<number>();
@@ -50,7 +54,10 @@ export class EncadrantStages implements OnInit {
     this.authService.getCurrentUser().subscribe({
       next: (user) => {
         this.userRole = user.role;
-            this.statutFilter = this.userRole === 'encadrant' ? 'En cours' : '';
+             // Applique le filtre par défaut seulement au premier chargement
+        if (!this.userAppliedFilter && this.userRole === 'encadrant') {
+          this.statutFilter = this.defaultFilter;
+        }
 
         // S’il est admin ou rh, on a besoin d’un encadrantId
         if ((this.userRole === 'admin' || this.userRole === 'rh') && !this.encadrantId) {
@@ -71,7 +78,8 @@ export class EncadrantStages implements OnInit {
 
   loadData() {
     this.loading = true;
-    const statut = this.statutFilter || undefined; // si vide => undefined
+    //  une chaîne vide pour "Tous"
+    const statut = this.statutFilter === '' ? '' : this.statutFilter;
     if (this.userRole === 'admin' || this.userRole === 'rh') {
       this.stageService.getStagesEncadrant(this.encadrantId, this.statutFilter).subscribe({
         next: (stages) => {
@@ -101,7 +109,13 @@ export class EncadrantStages implements OnInit {
       this.loading = false;
     }
   }
+  
+   onFilterChange() {
+    this.userAppliedFilter = true; // Marque que l'utilisateur a modifié le filtre
+    this.loadData();
+  }
 
+  
   goBack() {
     this.back.emit();
   }

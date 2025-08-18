@@ -3,7 +3,7 @@ const { creerNotification } = require('./NotificationController');
 const { creerHistoriqueModification } = require('./HistoriqueModificationController');
 module.exports = {
 
-// Fonction pour créer une évaluation
+   // Fonction pour créer une évaluation
   // Vérifie que l'utilisateur est un encadrant, que le stage existe et est en cours,
   // qu'aucune évaluation n'existe déjà pour ce stage, valide les notes et crée l'évaluation.
    async  creerEvaluation(req, res) {
@@ -79,7 +79,7 @@ module.exports = {
         titre: "Nouvelle évaluation reçue",
         message: `Votre encadrant a évalué votre stage "${stage.sujet_stage}"`,
         type: 'Evaluation',
-        lien_action: `/stagiaire/mes-stages/${stage.id}/evaluation`,
+        lien_action: `mes-stages`,
         stage_id: stage.id
       });
     }
@@ -106,7 +106,7 @@ async supprimerEvaluation(req, res) {
     const evaluation = await Evaluation.findByPk(evaluation_id, {
       include: [{
         model: Stage,
-        as: 'Stage', // Assurez-vous que c'est le bon alias (vérifiez vos associations)
+        as: 'Stage', 
         attributes: ['sujet_stage']
       }]
     });

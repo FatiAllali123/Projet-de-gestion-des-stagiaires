@@ -1,11 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../services/auth.service';
 import { NotificationService } from '../../../services/notification-service';
 import { Notification } from '../../../services/notification-service';
 import { Router , RouterModule} from '@angular/router';
 import { Subscription } from 'rxjs';
-
+import { NavigationService } from '../../../services/NavigationService';
 @Component({
   selector: 'app-nav-bar',
   standalone: true,
@@ -26,14 +26,15 @@ export class NavBarComponent implements OnInit, OnDestroy {
   constructor(
     public auth: AuthService,
     public notif: NotificationService,
-    private router: Router
+    private router: Router,
+    public navigation: NavigationService,
+    private eRef: ElementRef   
   ) {}
 
   ngOnInit(): void {
   this.auth.getCurrentUser().subscribe({
     next: () => {
       this.isAuthenticated = true;
-      console.log('statut auth ',this.isAuthenticated);
       
     },
     error: () => {
@@ -69,32 +70,69 @@ export class NavBarComponent implements OnInit, OnDestroy {
   }
 
  loadNotifications(): void {
-  console.log('Loading notifications...'); // Debug
+
   this.loading = true;
   this.notif.getUnreadNotifications().subscribe({
     next: (notifs) => {
-      console.log('Notifications loaded:', notifs); // Debug
+     
       this.notifications = notifs;
       this.loading = false;
     },
     error: (err) => {
-      console.error('Error loading notifications:', err); // Debug
+   
       this.loading = false;
     }
   });
 }
 
-  handleNotificationClick(notification: Notification): void {
-    if (!notification.est_lu) {
-      this.notif.markAsRead(notification.id).subscribe(() => {
-        notification.est_lu = true;
-        this.unreadCount--;
-      });
-    }
-    if (notification.lien_action) {
-      this.router.navigateByUrl(notification.lien_action);
-    }
-    this.notificationsOpen = false;
+  markAsRead(notification: Notification): void {
+    console.log('Notification clicked:', notification);
+    if (notification.est_lu) return;
+
+    this.notif.markAsRead(notification.id).subscribe({
+      next: () => {
+  
+        if (notification.lien_action === 'mes-candidatures') {
+        this.navigation.navigate('mes-candidatures', { 
+          candidatureId: notification.candidature_id ,
+          entretienId   : notification.entretien_id,
+          offreId : notification.offre_id
+        });
+        
+     
+      }
+      if (notification.lien_action === 'mes-stages') {
+        this.navigation.navigate('mes-stages', { 
+          stageId: notification.stage_id ,
+        
+        });
+      }
+       
+        if (notification.lien_action === 'mes-stages-encadrant') {
+        this.navigation.navigate('mes-stages-encadrant', { 
+          stageId: notification.stage_id ,
+        
+        });
+      }
+      
+
+
+       if (notification.lien_action === 'cnv2') {
+        this.navigation.navigate('cnv2');
+      }
+      
+      if (notification.lien_action === 'rapports') {
+        this.navigation.navigate('rapports');
+      }
+
+      this.notificationsOpen = false;
+      },
+      error: (err) => {
+        console.error('Erreur:', err);
+        
+      }
+    });
+      
   }
 
   logout() {

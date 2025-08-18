@@ -53,7 +53,7 @@ async  creerStage(req, res) {
           [Op.or]: ['En cours', 'Planifié']
         }
       },
-      attributes: ['id'] // On ne récupère que l'id pour optimiser
+      attributes: ['id'] // On ne récupère que l'id 
     });
 
     if (hasConflict) {
@@ -80,7 +80,7 @@ async  creerStage(req, res) {
       titre: 'Nouveau stage attribué',
       message: `Un stage vous a été attribué : ${sujet_stage}`,
       type: 'Stage',
-      lien_action: `/stagiaire/mes-stages/${stage.id}`,
+      lien_action: `mes-stages`,
       stage_id: stage.id,
       candidature_id: candidature_id
     });
@@ -151,7 +151,7 @@ async affecterEncadrant(req, res) {
       titre: "Affectation à un stage",
       message: `Vous avez été affecté au stage : ${stage.sujet_stage}`,
       type: 'affectation_stage',
-      lien_action: `/stages/${stage.id}`,
+      lien_action: `mes-stages-encadrant`,
       stage_id: stage.id
     });
 
@@ -169,7 +169,7 @@ async changerEncadrantStage(req, res) {
     const { nouveauEncadrantId } = req.body;
     const acteurId = req.user.userId; // ID de l'utilisateur qui effectue le changement
 
-    // 1. Récupérer le stage et vérifier son existence
+    //  Récupérer le stage et vérifier son existence
     const stage = await Stage.findByPk(stageId, {
       include: [
         {
@@ -229,7 +229,7 @@ async changerEncadrantStage(req, res) {
         titre: "Changement d'affectation",
         message: `Vous n'êtes plus encadrant du stage "${stage.sujet_stage}"`,
         type: 'changement_affectation',
-        lien_action: `/stages/${stage.id}`,
+        lien_action: `mes-stages-encadrant`,
         stage_id: stage.id
       });
 
@@ -249,7 +249,7 @@ async changerEncadrantStage(req, res) {
       titre: "Nouvelle affectation",
       message: `Vous avez été assigné comme encadrant du stage "${stage.sujet_stage}"`,
       type: 'nouvelle_affectation',
-      lien_action: `/stages/${stage.id}`,
+      lien_action: `mes-stages-encadrant`,
       stage_id: stage.id
     });
 
@@ -543,16 +543,9 @@ async  getEncadrantStages(req, res) {
       encadrant_id: id
     };
 
-    // Filtre par statut si spécifié
-    if (statut) {
+   // Filtre par statut si spécifié (y compris si statut est vide pour "Tous")
+    if (statut !== undefined) { // Modifié ici
       whereClause.statut_stage = statut;
-    }
-
-    // Pour les encadrants, on ne montre que les stages actifs ou planifiés par défaut
-    if (userRole === 'encadrant' && !statut) {
-      whereClause.statut_stage = {
-        [Op.or]: ['En cours']
-      };
     }
 
     const stages = await Stage.findAll({
@@ -582,26 +575,23 @@ async  getEncadrantStages(req, res) {
 ,
 
 
-
 async getStagesEvaluationPending(req, res) {
   try {
-    // ID de l'encadrant connecté
     const encadrantId = req.user.userId;
 
-    const stages = await Stage.findAll({
+    const allStages = await Stage.findAll({
       where: {
         statut_stage: 'Terminé',
         encadrant_id: encadrantId
       },
       include: [
         { model: Utilisateur, as: 'Stagiaire' },
-        { 
-          model: Evaluation,
-          required: false, // left join
-          where: { id: null } // récupère seulement les stages sans évaluation
-        }
+        { model: Evaluation }
       ]
     });
+    
+    const stages = allStages.filter(stage => stage.Evaluations.length === 0);
+   
 
     res.json(stages);
   } catch (error) {
@@ -609,6 +599,5 @@ async getStagesEvaluationPending(req, res) {
     res.status(500).json({ message: 'Erreur serveur' });
   }
 }
-
 
 };

@@ -13,7 +13,12 @@ export interface Notification {
   est_lu: boolean;
   date_creation: Date;
   date_lecture?: Date;
-  // Autres champs optionnels (offre_id, candidature_id, etc.)
+  candidature_id?: number; // ID de la candidature associée, si applicable
+  offre_id ?:number; // ID de l'offre associée
+  entretien_id?: number; // ID de l'entretien associé
+  stage_id?: number; // ID du stage associé
+  document_id?: number; // ID du document associé, 
+
 }
 
 @Injectable({
@@ -36,27 +41,30 @@ public unreadCount$ = this.unreadCountSubject.asObservable();
   }
 
 
-  // Récupère les notifications non lues
-  /*getUnreadNotifications(): Observable<Notification[]> {
-    return this.http.get<Notification[]>(`${this.apiUrl}/non-lues`);
-  }
-*/
   // Marque une notification comme lue
   markAsRead(notificationId: number): Observable<{ message: string }> {
     return this.http.patch<{ message: string }>(
       `${this.apiUrl}/${notificationId}/lue`,
       {} // Corps vide, car la logique est côté backend
-    , { headers: this.getHeaders() });
+    , { headers: this.getHeaders() }).pipe(
+      tap(() => {
+        // 👇 Décrémenter le compteur quand une notif est marquée comme lue
+        const current = this.unreadCountSubject.value;
+        if (current > 0) {
+          this.unreadCountSubject.next(current - 1);
+        }
+      })
+    );
   }
 // Mettre à jour après chaque chargement
 getUnreadNotifications(): Observable<Notification[]> {
-  console.log('Fetching unread notifications...'); // Debug
+
   return this.http.get<Notification[]>(
     `${this.apiUrl}/non-lues`,
     { headers: this.getHeaders() }
   ).pipe(
     tap(notifs => {
-      console.log('Notifications received:', notifs); // Debug
+     
       this.unreadCountSubject.next(notifs.length);
     })
   );

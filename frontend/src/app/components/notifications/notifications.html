@@ -27,11 +27,11 @@
       <h3 class="notification-title">{{ notif.titre }}</h3>
       <p class="notification-message">{{ notif.message }}</p>
 
-      <a *ngIf="notif.lien_action" 
-         [routerLink]="notif.lien_action" 
-         class="action-link">
-        Voir plus
-      </a>
+     <button *ngIf="notif.lien_action"
+        (click)="navigation.navigate(notif.lien_action, { candidatureId: notif.candidature_id })"
+        class="action-link">
+  Voir plus
+</button>
     </div>
   </div>
 </div>

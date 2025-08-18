@@ -41,6 +41,18 @@ async function marquerAbsence(req, res) {
     const debutStage = new Date(stage.date_debut);
     const finStage = new Date(stage.date_fin);
 
+
+       dateAbs.setHours(0, 0, 0, 0); // Normaliser à minuit
+    
+    // 1. Vérifier que la date n'est pas dans le futur
+    if (dateAbs > today) {
+      return res.status(400).json({
+        success: false,
+        message: "Impossible d'enregistrer une absence pour une date future.",
+        max_allowed_date: today.toISOString().split('T')[0]
+      });
+    }
+    
     if (dateAbs < debutStage || dateAbs > finStage) {
       return res.status(400).json({
         success: false,

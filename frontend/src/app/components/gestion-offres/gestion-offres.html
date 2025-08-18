@@ -58,36 +58,105 @@
 
 
 <div *ngIf="showCreateForm">
-  <form (ngSubmit)="soumettreFormulaire()">
-    <input [(ngModel)]="formulaire.titre" name="titre" placeholder="Titre" required>
-    <input [(ngModel)]="formulaire.description" name="description" placeholder="Description" required>
-    <input [(ngModel)]="formulaire.competences_requises" name="competences" placeholder="Compétences requises" required>
-    <input [(ngModel)]="formulaire.duree" name="duree" placeholder="Durée" required>
-    <input [(ngModel)]="formulaire.dateDebutApprox" name="dateDebut" type="date" required>
+  <form #offreForm="ngForm" (ngSubmit)="soumettreFormulaire(offreForm)" novalidate>
+    <!-- Titre -->
+    <div class="form-group">
+      <label>Titre*</label>
+      <input [(ngModel)]="formulaire.titre" name="titre" 
+             #titre="ngModel" required minlength="3">
+      <div *ngIf="titre.invalid && (titre.dirty || titre.touched)" class="error-message">
+        <div *ngIf="titre.errors?.['required']">Le titre est obligatoire</div>
+        <div *ngIf="titre.errors?.['minlength']">Minimum 3 caractères</div>
+      </div>
+    </div>
 
-    <select [(ngModel)]="formulaire.mode_stage" name="mode_stage">
-      <option value="Présentiel">Présentiel</option>
-      <option value="Distanciel">Distanciel</option>
-      <option value="Hybride">Hybride</option>
-       
-    </select>
+    <!-- Description -->
+    <div class="form-group">
+      <label>Description*</label>
+      <textarea [(ngModel)]="formulaire.description" name="description"
+                #description="ngModel" required minlength="10"></textarea>
+      <div *ngIf="description.invalid && (description.dirty || description.touched)" class="error-message">
+        <div *ngIf="description.errors?.['required']">La description est obligatoire</div>
+        <div *ngIf="description.errors?.['minlength']">Minimum 10 caractères</div>
+      </div>
+    </div>
 
-    <select [(ngModel)]="formulaire.type_stage" name="type_stage">
-      <option value="PFE">PFE</option>
-      <option value="PFA">PFA</option>
-      <option value="Initiation">Initiation</option>
-      <option value="Observation">Observation</option>
-    </select>
+    <!-- Compétences requises -->
+    <div class="form-group">
+      <label>Compétences requises*</label>
+      <input [(ngModel)]="formulaire.competences_requises" name="competences"
+             #competences="ngModel" required>
+      <div *ngIf="competences.invalid && (competences.dirty || competences.touched)" class="error-message">
+        Les compétences requises sont obligatoires
+      </div>
+    </div>
 
-    <label>
-      <input type="checkbox" [(ngModel)]="formulaire.entretien_requis" name="entretien_requis">
-      Entretien requis
-    </label>
+    <!-- Durée -->
+    <div class="form-group">
+      <label>Durée*</label>
+      <input [(ngModel)]="formulaire.duree" name="duree"
+             #duree="ngModel" required>
+      <div *ngIf="duree.invalid && (duree.dirty || duree.touched)" class="error-message">
+        La durée est obligatoire
+      </div>
+    </div>
 
-    <button type="submit">Valider</button>
-    <button type="button" (click)="annuler()">Annuler</button>
+    <!-- Date de début -->
+    <div class="form-group">
+      <label>Date de début approximative*</label>
+      <input [(ngModel)]="formulaire.dateDebutApprox" name="dateDebut"
+             #dateDebut="ngModel" type="date" required>
+      <div *ngIf="dateDebut.invalid && (dateDebut.dirty || dateDebut.touched)" class="error-message">
+        La date de début est obligatoire
+      </div>
+    </div>
+
+    <!-- Mode de stage -->
+    <div class="form-group">
+      <label>Mode de stage*</label>
+      <select [(ngModel)]="formulaire.mode_stage" name="mode_stage"
+              #modeStage="ngModel" required>
+        <option value="">-- Sélectionnez --</option>
+        <option value="Présentiel">Présentiel</option>
+        <option value="Distanciel">Distanciel</option>
+        <option value="Hybride">Hybride</option>
+      </select>
+      <div *ngIf="modeStage.invalid && (modeStage.dirty || modeStage.touched)" class="error-message">
+        Le mode de stage est obligatoire
+      </div>
+    </div>
+
+    <!-- Type de stage -->
+    <div class="form-group">
+      <label>Type de stage*</label>
+      <select [(ngModel)]="formulaire.type_stage" name="type_stage"
+              #typeStage="ngModel" required>
+        <option value="">-- Sélectionnez --</option>
+        <option value="PFE">PFE</option>
+        <option value="PFA">PFA</option>
+        <option value="Initiation">Initiation</option>
+        <option value="Observation">Observation</option>
+      </select>
+      <div *ngIf="typeStage.invalid && (typeStage.dirty || typeStage.touched)" class="error-message">
+        Le type de stage est obligatoire
+      </div>
+    </div>
+
+    <!-- Entretien requis -->
+    <div class="form-group checkbox">
+      <label>
+        <input type="checkbox" [(ngModel)]="formulaire.entretien_requis" name="entretien_requis">
+        Entretien requis
+      </label>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="offreForm.invalid">Valider</button>
+      <button type="button" (click)="annuler()">Annuler</button>
+    </div>
   </form>
 </div>
+
 
 <div *ngIf="viewingOffre" class="view-offre">
   <p><strong>Titre :</strong> {{ viewingOffre.titre }}</p>

@@ -15,7 +15,7 @@
     <label class="statusFilter">Filtrer par statut :</label>
     <select [(ngModel)]="filterStatut" (change)="onFilterChange()">
       <option value="">Tous</option>
-      <option value="'En cours d\'execution'">En cours</option>
+      <option value="En cours d'execution">En cours</option>
       <option value="Presélectionnée">Presélectionnée</option>
       <option value="Entretien planifié">Entretien planifié</option>
       <option value="Acceptée">Acceptée</option>
@@ -23,12 +23,17 @@
     </select>
   </div>
 
-<!-- Alert -->
-  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
-    {{ errorMessage }}
-     <button type="button" class="btn-close" (click)="errorMessage = null" aria-label="Close"></button>
-  </div>
 
+<!-- Message de succès -->
+<div *ngIf="showSuccess" class="success-message">
+  {{ successMessage }}
+  <button (click)="showSuccess = false; successMessage = null" class="close-btn">&times;</button>
+</div>
+
+<!-- Message d'erreur -->
+<div *ngIf="errorMessage" class="error-message">
+  {{ errorMessage }}
+</div>
 
 
 <!-- Liste des candidatures -->
@@ -110,7 +115,7 @@
         class="action-btn"
          [disabled]="loadingAction === candidature.id || isEntretienPast(candidature, action)"
         [ngClass]="{
-          'btn-accept': action === 'Accepter' || action === 'Entretien est passée' || action === 'Creer Stage',
+          'btn-accept': action === 'Accepter',
           'btn-reject': action === 'Refuser',
           'btn-preselect': action === 'Presélectionner' || action === 'Planifier entretien' || action === 'Modifier entretien',
           'btn-cancel': action === 'Annuler entretien'
@@ -160,56 +165,7 @@
 
 
 
-<!--  -->
-<div class="modal-backdrop" *ngIf="showStageModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h5>Créer un nouveau stage</h5>
-      <button type="button" class="btn-close" (click)="closeStageModal()"></button>
-    </div>
-    <div class="modal-body">
-      <div *ngIf="errorMessage" class="alert alert-danger mb-3">
-        {{ errorMessage }}
-      </div>
-     
 
-      <form #stageForm="ngForm" (ngSubmit)="submitStageForm()">
-        <div class="mb-3">
-          <label class="form-label">Sujet du stage</label>
-          <input type="text" class="form-control" [(ngModel)]="stageFormData.sujet_stage" 
-                 name="sujet" required #sujet="ngModel">
-          <!-- Message d'erreur -->
-          <div *ngIf="sujet.invalid && (sujet.dirty || sujet.touched)" class="text-danger">
-            Le sujet du stage est obligatoire
-          </div>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Date de début</label>
-          <input type="date" class="form-control" [(ngModel)]="stageFormData.date_debut" 
-                 name="dateDebut" required #dateDebut="ngModel">
-          <!-- Message d'erreur -->
-          <div *ngIf="dateDebut.invalid && (dateDebut.dirty || dateDebut.touched)" class="text-danger">
-            La date de début est obligatoire
-          </div>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Date de fin</label>
-          <input type="date" class="form-control" [(ngModel)]="stageFormData.date_fin" 
-                 name="dateFin" required #dateFin="ngModel">
-          <!-- Message d'erreur -->
-          <div *ngIf="dateFin.invalid && (dateFin.dirty || dateFin.touched)" class="text-danger">
-            La date de fin est obligatoire
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeStageModal()">Annuler</button>
-          <!-- Désactiver le bouton si le formulaire est invalide -->
-          <button type="submit" class="btn btn-primary" [disabled]="stageForm.invalid">Créer</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 
 
@@ -240,7 +196,14 @@
     
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="closePropositionModal()">Annuler</button>
-          <button type="submit" class="btn btn-primary">Proposer</button>
+         <button 
+  type="submit" 
+  [disabled]="isSubmittingProposition"
+  [ngClass]="{'loading': isSubmittingProposition}">
+  
+  <span *ngIf="!isSubmittingProposition">Proposer</span>
+  <span *ngIf="isSubmittingProposition">Envoi en cours...</span>
+</button>
         </div>
       </form>
     </div>

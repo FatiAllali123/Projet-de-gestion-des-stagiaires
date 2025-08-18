@@ -78,10 +78,7 @@ envoyerConvention(candidatureId: number, file: File): Observable<any> {
 
   return this.uploadDocument(formData);
 }
-// Consulter un document
-  viewDocument(documentId: number): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/${documentId}`, { headers: this.getHeaders(), responseType: 'blob' });
-  } 
+
   // Traiter un justificatif d'absence
  processJustificatif(documentId: number, action: 'accepter' | 'refuser', commentaire?: string): Observable<any> {
   return this.http.post(
@@ -105,7 +102,9 @@ envoyerConvention(candidatureId: number, file: File): Observable<any> {
   }
 getJustificationForAbsence(absenceId: number): Observable<any> {
   return this.http.get(`${this.apiUrl}/justificatif/${absenceId}`, { headers: this.getHeaders() });
+
 }
+
 getTraitementHistoriqueForAbsence(absenceId: number): Observable<any> {
   return this.http.get<any>(`${this.apiUrl}/absences/${absenceId}/historique-traitement`, { headers: this.getHeaders() });
 }

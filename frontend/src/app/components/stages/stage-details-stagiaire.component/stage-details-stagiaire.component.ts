@@ -218,6 +218,11 @@ checkJustificationStatus(absenceId: number) {
 
   // Modifier la fonction uploadJustification existante
 uploadJustification(): void {
+    if (this.isStageNotEncours()) {
+    this.absenceError = "Le stage est terminé, vous ne pouvez plus déposer de justificatif.";
+    return;
+  }
+  
   if (!this.selectedFile || !this.selectedAbsenceId) return;
 
   this.uploadingJustification = true;
@@ -271,6 +276,10 @@ hasPendingJustification(absenceId: number): boolean {
 
 
 uploadReport() {
+    if (this.isStageNotEncours()) {
+    this.reportError = "Le stage est terminé, vous ne pouvez plus déposer de rapport.";
+    return;
+  }
   if (!this.selectedReportFile) return;
 
   this.uploadingReport = true;
@@ -387,6 +396,8 @@ cancelJustificationUpload(): void {
 }
 
 
-
+isStageNotEncours(): boolean {
+  return this.stage?.statut_stage?.toLowerCase() !== 'en cours';
+}
 
 }
